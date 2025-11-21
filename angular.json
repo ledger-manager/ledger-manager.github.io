@@ -47,7 +47,6 @@
                 }
               ],
               "outputPath": "dist",
-              "baseHref": "/ledger-manager.github.io/",
               "outputHashing": "all",
               "fileReplacements": [
                 {
