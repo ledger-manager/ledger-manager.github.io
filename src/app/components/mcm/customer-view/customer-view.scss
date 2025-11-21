@@ -118,6 +118,7 @@
 
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  // ...existing code...
 
   @media (min-width: 769px) {
     ::ng-deep .p-datatable {
