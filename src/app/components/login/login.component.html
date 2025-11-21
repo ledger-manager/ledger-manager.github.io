@@ -1,0 +1,51 @@
+<app-cookie-consent></app-cookie-consent>
+<div class="login-container">
+  <p-toast position="top-right"></p-toast>
+  
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="login-header">
+        <h2>MC Manager</h2>
+        <p>Login to continue</p>
+      </div>
+    </ng-template>
+    
+    <div class="login-form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input 
+          pInputText 
+          id="username" 
+          type="text" 
+          [(ngModel)]="username"
+          (keypress)="onKeyPress($event)"
+          placeholder="Enter username"
+          [disabled]="loading()"
+          class="w-full"
+        />
+      </div>
+      
+      <div class="field">
+        <label for="password">Password</label>
+        <p-password 
+          [(ngModel)]="password"
+          (keypress)="onKeyPress($event)"
+          [disabled]="loading()"
+          [feedback]="false"
+          [toggleMask]="true"
+          placeholder="Enter password"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-password>
+      </div>
+      
+      <p-button 
+        label="Login" 
+        icon="pi pi-sign-in"
+        (onClick)="login()"
+        [loading]="loading()"
+        styleClass="w-full"
+      ></p-button>
+    </div>
+  </p-card>
+</div>

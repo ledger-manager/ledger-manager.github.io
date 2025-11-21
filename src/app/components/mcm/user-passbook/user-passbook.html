@@ -1,0 +1,166 @@
+<div class="user-passbook-container">
+  <div class="passbook-header">
+    <div class="back-button">
+      <p-button 
+        icon="pi pi-arrow-left" 
+        severity="secondary" 
+        [outlined]="true"
+        (onClick)="goBack()"
+      ></p-button>
+    </div>
+    <div class="title-section">
+      @if (customer()) {
+        <h2>{{ customer()!.custNo }} - {{ customer()!.name_en }}, {{ customer()!.village }}</h2>
+      }
+    </div>
+  </div>
+
+  <!-- Billing Period and Actions Row -->
+  @if (period() && periodEnd()) {
+    <div class="period-actions-row">
+      <div class="billing-period-panel">
+        <p-button 
+          icon="pi pi-chevron-left" 
+          (onClick)="goToPreviousPeriod()"
+          [outlined]="true"
+          size="small"
+          severity="secondary"
+          [disabled]="!hasPreviousPeriod()"
+        ></p-button>
+        <span class="period-dates">{{ period() | date: 'MMM, dd' }} - {{ periodEnd() | date: 'MMM, dd' }}</span>
+        <p-button 
+          icon="pi pi-chevron-right" 
+          (onClick)="goToNextPeriod()"
+          [outlined]="true"
+          size="small"
+          severity="secondary"
+          [disabled]="!hasNextPeriod()"
+        ></p-button>
+      </div>
+      
+      <div class="share-button-wrapper">
+        <p-button 
+          icon="pi pi-whatsapp" 
+          (onClick)="shareViaWhatsApp()"
+          [outlined]="true"
+          size="small"
+          severity="success"
+          label="Share"
+          pTooltip="Share via WhatsApp"
+          tooltipPosition="bottom"
+        ></p-button>
+      </div>
+    </div>
+  }
+
+  <div class="table-wrapper">
+    <p-table 
+      [value]="passbookRows()" 
+      styleClass="p-datatable-gridlines p-datatable-striped passbook-table"
+      [scrollable]="true"
+      scrollHeight="flex"
+      [tableStyle]="{'width': 'auto'}">
+      <ng-template pTemplate="header">
+      <tr>
+        <th rowspan="2" class="col-date" pFrozenColumn>Date</th>
+        <th colspan="3" class="session-header am-header">AM</th>
+        <th colspan="3" class="session-header pm-header">PM</th>
+        <th rowspan="2" class="col-day-amt">Day Amt</th>
+      </tr>
+      <tr>
+        <th class="col-qty"></th>
+        <th class="col-fat"></th>
+        <th class="col-amt">₹</th>
+        <th class="col-qty"></th>
+        <th class="col-fat"></th>
+        <th class="col-amt">₹</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td class="col-date" pFrozenColumn>{{ row.dateObj | date: 'MMM, dd' }}</td>
+        <td class="col-qty">{{ row.AM.qty > 0 ? (row.AM.qty | number: '1.1-1') : '' }}</td>
+        <td class="col-fat">{{ row.AM.fat > 0 ? (row.AM.fat | number: '1.1-1') : '' }}</td>
+        <td class="col-amt">{{ row.AM.amt > 0 ? (row.AM.amt | number: '1.2-2') : '' }}</td>
+        <td class="col-qty">{{ row.PM.qty > 0 ? (row.PM.qty | number: '1.1-1') : '' }}</td>
+        <td class="col-fat">{{ row.PM.fat > 0 ? (row.PM.fat | number: '1.1-1') : '' }}</td>
+        <td class="col-amt">{{ row.PM.amt > 0 ? (row.PM.amt | number: '1.2-2') : '' }}</td>
+        <td class="col-day-amt">{{ row.dayAmt > 0 ? (row.dayAmt | number: '1.2-2') : '' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr class="totals-row">
+        <td class="totals-label" pFrozenColumn>Total</td>
+        <td class="col-qty total-qty">{{ totals().AM.qty | number: '1.1-1' }}</td>
+        <td class="col-fat"></td>
+        <td class="col-amt total-amt">₹ {{ totals().AM.amt | number: '1.2-2' }}</td>
+        <td class="col-qty total-qty">{{ totals().PM.qty | number: '1.1-1' }}</td>
+        <td class="col-fat"></td>
+        <td class="col-amt total-amt">₹ {{ totals().PM.amt | number: '1.2-2' }}</td>
+        <td class="col-day-amt total-day-amt">₹ {{ totals().total | number: '1.2-2' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  </div>
+
+  <!-- Payment Section -->
+  <div class="payment-section">
+    <p-toast position="top-right"></p-toast>
+    
+    <div class="payment-row">
+      <div class="payment-item">
+        <label>Paid:</label>
+        @if (!isEditMode()) {
+          <span class="payment-value">₹ {{ custBill()?.paidAmt || 0 | number: '1.2-2' }}</span>
+        } @else {
+          <p-inputNumber 
+            [(ngModel)]="paidAmtInput"
+            inputId="paidAmt"
+            mode="decimal" 
+            [minFractionDigits]="2" 
+            [maxFractionDigits]="2"
+            prefix="₹ "
+            [min]="0"
+          ></p-inputNumber>
+        }
+      </div>
+
+      <div class="payment-item">
+        <label>Prev Due:</label>
+        <span class="payment-value">₹ {{ custBill()?.prevDueAmt || 0 | number: '1.2-2' }}</span>
+      </div>
+
+      <div class="payment-item">
+        <label>Due Amt:</label>
+        <span class="payment-value" [class.negative]="dueAmt() < 0">₹ {{ dueAmt() | number: '1.2-2' }}</span>
+      </div>
+
+      @if (!isEditMode()) {
+        @if (ledgerData()?.isBilled) {
+          <p-button 
+            label="Edit" 
+            icon="pi pi-pencil" 
+            (onClick)="enterEditMode()"
+            severity="info"
+          ></p-button>
+        } @else {
+          <span style="color: red; font-weight: bold; margin-left: 1rem;">UN BILLED</span>
+        }
+      } @else if (isEditMode()) {
+        <p-button 
+          label="Save" 
+          icon="pi pi-check" 
+          (onClick)="savePayment()"
+          severity="success"
+        ></p-button>
+        <p-button 
+          label="Cancel" 
+          icon="pi pi-times" 
+          (onClick)="cancelEdit()"
+          severity="secondary"
+          [outlined]="true"
+        ></p-button>
+      }
+    </div>
+  </div>
+</div>

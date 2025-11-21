@@ -1,0 +1,17 @@
+[Unit]
+Description=ngrok v3 Tunnel Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ngrok-user
+Group=ngrok-user
+ExecStart=/usr/local/bin/ngrok start couchdb-api --config /opt/ngrok/.config/ngrok/ngrok.yml
+WorkingDirectory=/opt/ngrok
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+

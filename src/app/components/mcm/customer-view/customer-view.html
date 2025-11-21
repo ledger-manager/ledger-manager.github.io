@@ -1,0 +1,134 @@
+<div class="customer-container">
+  <p-toast></p-toast>
+  <div class="customer-header">
+    <p-button icon="pi pi-home" severity="secondary" [outlined]="true" (onClick)="goToHome()"></p-button>
+    <h2>Customers</h2>
+    <div class="header-controls">
+      <p-button 
+        label="Add Customer" 
+        icon="pi pi-plus" 
+        (click)="openAddCustomerDialog()"
+        severity="success"
+      ></p-button>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <p-table [value]="customers()" styleClass="p-datatable-gridlines p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Cust No</th>
+          <th>Name</th>
+          <th>Village</th>
+          <th>Mobile</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-customer>
+        <tr>
+          <td>
+            <div class="custno-cell">
+              {{customer.custNo}}
+              <i class="pi pi-pencil edit-icon" (click)="openEditCustomerDialog(customer)"></i>
+            </div>
+          </td>
+          <td>{{customer.name_en}}</td>
+          <td>{{customer.village}}</td>
+          <td>{{customer.mobileNo || ''}}</td>
+          <td>{{ customer.isActive !== false ? 'ACTIVE' : '' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Add/Edit Customer Dialog -->
+  <p-dialog 
+    [(visible)]="showDialog" 
+    [modal]="true" 
+    [closable]="true"
+    [style]="{width: '90vw', maxWidth: '500px'}"
+    [header]="isEditMode ? 'Edit Customer' : 'Add New Customer'"
+  >
+    <div class="dialog-content">
+      <div class="form-field">
+        <label>Customer No</label>
+        <input 
+          type="number" 
+          [(ngModel)]="newCustomer.custNo" 
+          class="form-input"
+          readonly
+        />
+      </div>
+
+      <div class="form-field">
+        <label>Name (English)</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newCustomer.name_en" 
+          class="form-input"
+          placeholder="Enter name in English"
+          [readonly]="isEditMode"
+        />
+      </div>
+
+      <div class="form-field">
+        <label>Village</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newCustomer.village" 
+          class="form-input"
+          placeholder="Enter village"
+          [readonly]="isEditMode"
+        />
+      </div>
+
+      <div class="form-field">
+        <label>Mobile Number</label>
+        <input 
+          type="tel" 
+          [(ngModel)]="newCustomer.mobileNo" 
+          class="form-input"
+          placeholder="Enter mobile number"
+        />
+      </div>
+
+      <div class="form-field status-field">
+        <label class="checkbox-label">
+          <input 
+            type="radio" 
+            name="customerStatus" 
+            [value]="true"
+            [(ngModel)]="newCustomer.isActive"
+          />
+          <span>Active</span>
+        </label>
+        <label class="checkbox-label">
+          <input 
+            type="radio" 
+            name="customerStatus" 
+            [value]="false"
+            [(ngModel)]="newCustomer.isActive"
+          />
+          <span>Inactive</span>
+        </label>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <p-button 
+          label="Cancel" 
+          (click)="closeDialog()" 
+          severity="secondary"
+          [outlined]="true"
+        ></p-button>
+        <p-button 
+          [label]="isEditMode ? 'Save' : 'Add'" 
+          (click)="saveCustomer()" 
+          severity="success"
+          [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

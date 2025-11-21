@@ -1,0 +1,67 @@
+# CouchDB Reverse Proxy Configuration
+# Fauxton UI accessible only on intranet
+# API accessible via both intranet and ngrok tunnel
+
+server {
+    listen 80;
+    server_name 192.168.1.224;
+
+    # Increase buffer sizes for CouchDB
+    client_max_body_size 100M;
+    proxy_buffers 8 16k;
+    proxy_buffer_size 32k;
+
+    # Security headers
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Logging
+    access_log /var/log/nginx/couchdb_access.log;
+    error_log /var/log/nginx/couchdb_error.log;
+
+    # API endpoints - proxy to CouchDB
+    location /api/ {
+        proxy_pass http://127.0.0.1:5984/;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_redirect off;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+
+        # Hide CouchDB's CORS headers
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Credentials;
+        proxy_hide_header Access-Control-Allow-Methods;
+        proxy_hide_header Access-Control-Allow-Headers;
+        
+        # Add SameSite=None to AuthSession cookie for cross-origin (remove Secure for local HTTP dev)
+        proxy_cookie_path / "/; SameSite=None";
+
+        # Force our own CORS headers - using always to ensure they apply to all status codes
+        set $cors_allowed_origin "";
+        if ($http_origin ~* "^(http://localhost:4200|http://192.168.1.223:4200|https://ledger-manager.github.io)$") {
+            set $cors_allowed_origin $http_origin;
+        }
+        add_header Access-Control-Allow-Origin "$cors_allowed_origin" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,ngrok-skip-browser-warning" always;
+
+        # Handle preflight OPTIONS requests with early return
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin "$cors_allowed_origin" always;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,ngrok-skip-browser-warning" always;
+            add_header Access-Control-Allow-Credentials "true" always;
+            add_header Access-Control-Max-Age 3600 always;
+            add_header Content-Length 0;
+            add_header Content-Type text/plain;
+            return 204;
+        }
+    }
+}

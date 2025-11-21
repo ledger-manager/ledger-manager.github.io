@@ -1,0 +1,477 @@
+<div class="ledger-container">
+  <p-toast position="top-right"></p-toast>
+  
+  <div class="ledger-header">
+    <p-button icon="pi pi-home" severity="secondary" [outlined]="true" (onClick)="goToHome()"></p-button>
+    <h2>Ledger</h2>
+  </div>
+
+  <!-- Billing Period Panel (shown when 10 Day is selected) -->
+  @if (selectedDateRange() === 'TEN_DAY') {
+    @for (period of getTenDayPeriods(); track period.tenDayStart) {
+      <div class="billing-period-panel">
+        <p-button 
+          icon="pi pi-chevron-left" 
+          (onClick)="goToPreviousPeriod()"
+          [outlined]="true"
+          size="small"
+          severity="secondary"
+          [disabled]="!hasPreviousPeriod() && !isAdmin()"
+        ></p-button>
+        <span class="period-dates">{{ getPeriodDateRange(period) }}</span>
+        <p-button 
+          icon="pi pi-chevron-right" 
+          (onClick)="goToNextPeriod()"
+          [outlined]="true"
+          size="small"
+          severity="secondary"
+          [disabled]="isCurrentPeriod()"
+        ></p-button>
+      </div>
+    }
+  }
+
+  <div class="table-wrapper" #tableWrapper>
+    <p-table [value]="tableRows()" 
+             [stripedRows]="true"
+             [scrollable]="true"
+             scrollHeight="flex"
+             styleClass="p-datatable-sm"
+             class="p-datatable-gridlines ledger-table" 
+             [tableStyle]="{'width': 'auto'}">
+       <ng-template #caption>
+        <div class="flex items-center gap-3">
+            <div class="date-range-buttons">
+              <p-button 
+                label="Today" 
+                (onClick)="setDateRange('DAY')"
+                size="small"
+                [severity]="selectedDateRange() === 'DAY' ? 'info' : 'secondary'"
+                [outlined]="selectedDateRange() !== 'DAY'"
+              ></p-button>
+              <p-button 
+                label="10 Day" 
+                (onClick)="setDateRange('TEN_DAY')"
+                size="small"
+                [severity]="selectedDateRange() === 'TEN_DAY' ? 'info' : 'secondary'"
+                [outlined]="selectedDateRange() !== 'TEN_DAY'"
+              ></p-button>
+            </div>
+            <div class="session-toggle-buttons">
+              <p-button 
+                label="AM" 
+                (onClick)="toggleAM()"
+                size="small"
+                [severity]="showAM() ? 'info' : 'secondary'"
+                [outlined]="!showAM()"
+              ></p-button>
+              <p-button 
+                label="PM" 
+                (onClick)="togglePM()"
+                size="small"
+                [severity]="showPM() ? 'info' : 'secondary'"
+                [outlined]="!showPM()"
+              ></p-button>
+            </div>
+            <p-selectButton 
+              [options]="exportFormatOptions" 
+              (onChange)="exportData($event.value)"
+              optionLabel="label" 
+              optionValue="value"
+              size="small"
+              [disabled]="selectedDateRange() === 'DAY'"
+            >
+              <ng-template let-item pTemplate>
+                <i class="pi pi-download"></i> {{ item.label }}
+              </ng-template>
+            </p-selectButton>
+            @if (bulkEditDate() && bulkEditSession()) {
+              <p-button 
+                label="Mock Data" 
+                (onClick)="fillMockDataForSession()"
+                [outlined]="true"
+                size="small"
+                severity="secondary"
+                icon="pi pi-database"
+              ></p-button>
+            }
+            @if (selectedDateRange() === 'TEN_DAY' && !isCurrentPeriod()) {
+              @if (!ledgerData()?.isBilled) {
+                <p-button 
+                  label="Run Bills" 
+                  (onClick)="runBills()"
+                  size="small"
+                  severity="success"
+                  icon="pi pi-calculator"
+                ></p-button>
+              }
+              @if (ledgerData()?.isBilled && isAdmin()) {
+                <p-button 
+                  label="Re-run Bills" 
+                  (onClick)="reRunBills()"
+                  size="small"
+                  severity="warn"
+                  icon="pi pi-refresh"
+                ></p-button>
+              }
+            }
+            <!-- Removed standalone Export JSON and Export PDF buttons. Only select button remains for all roles. -->
+        </div>
+      </ng-template>
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <!-- Customer Details Column Group -->
+          <th [colSpan]="2" class="member-header frozen-cols" pFrozenColumn>Customer Details</th>
+          <!-- Date Column Groups -->
+          @for (dateStr of visibleDates(); track dateStr; let first = $first) {
+            <th [colSpan]="getDateColspan()" class="date-header" [class.day-separator]="!first">{{ getDateDisplay(dateStr) }}</th>
+          }
+          <!-- Billed Column -->
+          @if (ledgerData()?.isBilled) {
+            <th [colSpan]="5" [rowSpan]="2" class="billed-header">Billed</th>
+          }
+        </tr>
+        <tr>
+          <!-- Customer Detail Columns -->
+          <th class="col-custno frozen-cols" [rowSpan]="2" pFrozenColumn>Cust No</th>
+          <th class="col-name frozen-cols" [rowSpan]="2" pFrozenColumn>Name</th>
+        
+        <!-- Session Column Groups for each date -->
+        @for (dateStr of visibleDates(); track dateStr; let first = $first) {
+          @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+            <th [colSpan]="2" class="session-header am-header" [class.day-separator]="!first">
+              <span class="session-header-content">
+                AM
+                @if (!ledgerData()?.isBilled && canEditSession(dateStr, 'AM')) {
+                  @if (!isBulkEditing(dateStr, 'AM')) {
+                    <p-button 
+                      icon="pi pi-pencil" 
+                      (onClick)="enableBulkEdit(dateStr, 'AM')"
+                      [outlined]="true"
+                      [rounded]="true"
+                      size="small"
+                      severity="info"
+                      styleClass="session-edit-btn"
+                    ></p-button>
+                  } @else {
+                    <p-button 
+                      icon="pi pi-check" 
+                      (onClick)="saveBulkEdit()"
+                      [outlined]="true"
+                      [rounded]="true"
+                      size="small"
+                      severity="info"
+                      styleClass="session-save-btn"
+                    ></p-button>
+                  }
+                }
+              </span>
+            </th>
+          }
+          @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+            <th [colSpan]="2" class="session-header pm-header" [class.day-separator]="!first && selectedSessionDisplay() === 'PM'">
+              <span class="session-header-content">
+                PM
+                @if (!ledgerData()?.isBilled && canEditSession(dateStr, 'PM')) {
+                  @if (!isBulkEditing(dateStr, 'PM')) {
+                    <p-button 
+                      icon="pi pi-pencil" 
+                      (onClick)="enableBulkEdit(dateStr, 'PM')"
+                      [outlined]="true"
+                      [rounded]="true"
+                      size="small"
+                      severity="info"
+                      styleClass="session-edit-btn"
+                      [attr.data-date]="dateStr"
+                    ></p-button>
+                  } @else {
+                    <p-button 
+                      icon="pi pi-check" 
+                      (onClick)="saveBulkEdit()"
+                      [outlined]="true"
+                      [rounded]="true"
+                      size="small"
+                      severity="info"
+                      styleClass="session-save-btn"
+                      [attr.data-date]="dateStr"
+                    ></p-button>
+                  }
+                }
+              </span>
+            </th>
+          }
+        }
+      </tr>
+      <tr>
+        <!-- Custoer Detail Columns (empty for this row - they span from above) -->
+        
+        <!-- Qty/Fat columns for each date's AM/PM -->
+        @for (dateStr of visibleDates(); track dateStr; let first = $first) {
+          @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+            <!-- AM -->
+            <th class="col-qty" [class.day-separator]="!first"></th>
+            <th class="col-fat"></th>
+          }
+          @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+            <!-- PM -->
+            <th class="col-qty" [class.day-separator]="!first && selectedSessionDisplay() === 'PM'"></th>
+            <th class="col-fat"></th>
+          }
+        }
+        <!-- Billed Sub-columns -->
+        @if (ledgerData()?.isBilled) {
+          <th class="col-billed-qty">Qty</th>
+          <th class="col-billed-amount">Amount</th>
+          <th class="col-billed-prevdue">Prev</th>
+          <th class="col-billed-paid">Paid</th>
+          <th class="col-billed-due">Due</th>
+        }
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <!-- Customer Details -->
+        <td class="col-custno frozen-cols clickable" pFrozenColumn>
+          <span class="custno-content custno-overlay">
+            <span class="custno-actions">
+              @if (!bulkEditSession() && !ledgerData()?.isBilled) {
+                <button class="custno-btn custno-edit-btn" (click)="openEntryDialog(row)">{{ row.custNo }}</button>
+              }
+              @if (ledgerData()?.isBilled) {
+                <button class="custno-btn custno-passbook-btn" (click)="navigateToPassbook(row.custNo)" title="View Passbook">{{ row.custNo }}</button>
+              }
+            </span>
+          </span>
+        </td>
+        <td class="col-name frozen-cols" pFrozenColumn>
+          {{ selectedNameDisplay() === 'en' ? row.name_en : row.name_tel }}
+        </td>
+        
+        <!-- Data for each date -->
+        @for (dateStr of visibleDates(); track dateStr; let first = $first) {
+          @if (getRecord(row, dateStr); as record) {
+            @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+              <!-- AM Qty -->
+              <td class="col-qty" [class.day-separator]="!first">
+                @if (isBulkEditing(dateStr, 'AM')) {
+                  <input 
+                    type="tel" 
+                    [value]="record.AM.qty > 0 ? record.AM.qty : ''" 
+                    (input)="updateCellValue(row.custNo, dateStr, 'AM', 'qty', $any($event.target).value); record.AM.qty = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="bulk-input"
+                  />
+                } @else {
+                  <span class="qty-display" [ngClass]="getQtyLevelClass(record.AM.qty)">
+                    {{ record.AM.qty > 0 ? (record.AM.qty | number: '1.2-2') : '' }}
+                  </span>                  
+                }
+              </td>
+              <!-- AM Fat -->
+              <td class="col-fat">
+                @if (isBulkEditing(dateStr, 'AM')) {
+                  <input 
+                    type="tel" 
+                    [value]="record.AM.fat > 0 ? record.AM.fat : ''" 
+                    (input)="updateCellValue(row.custNo, dateStr, 'AM', 'fat', $any($event.target).value); record.AM.fat = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="bulk-input"
+                  />
+                } @else {
+                  <span class="fat-display" [ngClass]="getFatLevelClass(record.AM.fat)">
+                    {{ record.AM.fat > 0 ? (record.AM.fat | number: '1.1-1') : '' }}
+                  </span>
+                }
+              </td>
+            }
+            @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+              <!-- PM Qty -->
+              <td class="col-qty" [class.day-separator]="!first && selectedSessionDisplay() === 'PM'">
+                @if (isBulkEditing(dateStr, 'PM')) {
+                  <input 
+                    type="tel" 
+                    [value]="record.PM.qty > 0 ? record.PM.qty : ''" 
+                    (input)="updateCellValue(row.custNo, dateStr, 'PM', 'qty', $any($event.target).value); record.PM.qty = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="bulk-input"
+                  />
+                } @else {
+                  <span class="qty-display" [ngClass]="getQtyLevelClass(record.PM.qty)">
+                    {{ record.PM.qty > 0 ? (record.PM.qty | number: '1.2-2') : '' }}
+                  </span>
+                }
+              </td>
+              <!-- PM Fat -->
+              <td class="col-fat">
+                @if (isBulkEditing(dateStr, 'PM')) {
+                  <input 
+                    type="tel" 
+                    [value]="record.PM.fat > 0 ? record.PM.fat : ''" 
+                    (input)="updateCellValue(row.custNo, dateStr, 'PM', 'fat', $any($event.target).value); record.PM.fat = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="bulk-input"
+                  />
+                } @else {
+                  <span class="fat-display" [ngClass]="getFatLevelClass(record.PM.fat)">
+                    {{ record.PM.fat > 0 ? (record.PM.fat | number: '1.1-1') : '' }}
+                  </span>
+                }
+              </td>
+            }
+          }
+        }
+        
+        <!-- Billed Columns -->
+        @if (ledgerData()?.isBilled) {
+          @if (getCustBill(row.custNo); as custBill) {
+            <td class="col-billed-qty">{{ custBill.totalQty > 0 ? (custBill.totalQty | number: '1.1-1') : '' }}</td>
+            <td class="col-billed-amount">{{ custBill.amount > 0 ? (custBill.amount | number: '1.2-2') : '' }}</td>
+            <td class="col-billed-prevdue">{{ custBill.prevDueAmt !== 0 ? (custBill.prevDueAmt | number: '1.2-2') : '' }}</td>
+            <td class="col-billed-paid">{{ custBill.paidAmt > 0 ? (custBill.paidAmt | number: '1.2-2') : '' }}</td>
+            <td class="col-billed-due">{{ custBill.dueAmt !== 0 ? (custBill.dueAmt | number: '1.2-2') : '' }}</td>
+          } @else {
+            <td class="col-billed-qty"></td>
+            <td class="col-billed-amount"></td>
+            <td class="col-billed-prevdue"></td>
+            <td class="col-billed-paid"></td>
+            <td class="col-billed-due"></td>
+          }
+        }
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+      <tr class="totals-row">
+        <td class="col-custno frozen-cols totals-label" colspan="2" pFrozenColumn>Totals</td>
+        
+        <!-- Totals for each date's AM/PM -->
+        @for (dateStr of visibleDates(); track dateStr; let first = $first) {
+          @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+            <!-- AM Qty Total -->
+            <td class="col-qty totals-value" [class.day-separator]="!first">
+              {{ getQtyTotal(dateStr, 'AM') | number: '1.2-2' }}
+            </td>
+            <!-- AM Fat - blank -->
+            <td class="col-fat totals-value"></td>
+          }
+          @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+            <!-- PM Qty Total -->
+            <td class="col-qty totals-value" [class.day-separator]="!first && selectedSessionDisplay() === 'PM'">
+              {{ getQtyTotal(dateStr, 'PM') | number: '1.2-2' }}
+            </td>
+            <!-- PM Fat - blank -->
+            <td class="col-fat totals-value"></td>
+          }
+        }
+        
+        <!-- Billed Totals -->
+        @if (ledgerData()?.isBilled) {
+          <td class="col-billed-qty totals-value">{{ getTotalQty() | number: '1.1-1' }}</td>
+          <td class="col-billed-amount totals-value">{{ ledgerData()?.totalAmt | number: '1.2-2' }}</td>
+          <td class="col-billed-prevdue totals-value">{{ getTotalPrevDue() | number: '1.2-2' }}</td>
+          <td class="col-billed-paid totals-value">{{ ledgerData()?.receivedAmt | number: '1.2-2' }}</td>
+          <td class="col-billed-due totals-value">{{ getTotalDue() | number: '1.2-2' }}</td>
+        }
+      </tr>
+    </ng-template>
+  </p-table>
+  </div>
+
+  <!-- Single Entry Dialog -->
+  <p-dialog 
+    [(visible)]="showEntryDialog" 
+    [modal]="true" 
+    [style]="{width: '500px'}"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    @if (dialogMember()) {
+      <div class="dialog-content">
+        <div class="dialog-header-info">
+          <div class="dialog-member-name">{{ dialogMember()!.custNo }} - {{ dialogMember()!.name_en }}</div>
+          <div class="dialog-date">{{ dialogDate() | date: 'EEE, MMM d' }}</div>
+        </div>
+        
+        <table class="entry-dialog-table">
+          <thead>
+            <tr>
+              @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+                <th colspan="2" class="session-header am-header">AM</th>
+              }
+              @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+                <th colspan="2" class="session-header pm-header">PM</th>
+              }
+            </tr>
+            <tr>
+              @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+                <th class="col-qty">Qty</th>
+                <th class="col-fat">Fat</th>
+              }
+              @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+                <th class="col-qty">Qty</th>
+                <th class="col-fat">Fat</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              @if (selectedSessionDisplay() === 'AM' || selectedSessionDisplay() === 'AM-PM') {
+                <td class="col-qty">
+                  <input 
+                    type="tel" 
+                    [value]="dialogData().AM.qty > 0 ? dialogData().AM.qty : ''" 
+                    (input)="dialogData().AM.qty = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="dialog-input"
+                    placeholder=""
+                  />
+                </td>
+                <td class="col-fat">
+                  <input 
+                    type="tel" 
+                    [value]="dialogData().AM.fat > 0 ? dialogData().AM.fat : ''" 
+                    (input)="dialogData().AM.fat = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="dialog-input"
+                    placeholder=""
+                  />
+                </td>
+              }
+              @if (selectedSessionDisplay() === 'PM' || selectedSessionDisplay() === 'AM-PM') {
+                <td class="col-qty">
+                  <input 
+                    type="tel" 
+                    [value]="dialogData().PM.qty > 0 ? dialogData().PM.qty : ''" 
+                    (input)="dialogData().PM.qty = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="dialog-input"
+                    placeholder=""
+                  />
+                </td>
+                <td class="col-fat">
+                  <input 
+                    type="tel" 
+                    [value]="dialogData().PM.fat > 0 ? dialogData().PM.fat : ''" 
+                    (input)="dialogData().PM.fat = $any($event.target).value ? +$any($event.target).value : 0"
+                    class="dialog-input"
+                    placeholder=""
+                  />
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #footer>
+        <div class="dialog-footer">
+          <p-button 
+            label="Clear" 
+            (onClick)="clearDialogData()" 
+            severity="secondary"
+            [outlined]="true"
+          ></p-button>
+          <p-button 
+            label="Save" 
+            (onClick)="saveDialogData()" 
+            severity="primary"
+          ></p-button>
+        </div>
+      </ng-template>
+    }
+  </p-dialog>
+</div>
