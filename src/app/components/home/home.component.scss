@@ -16,7 +16,6 @@
   margin: 2rem auto 0 auto;
 }
 .home-card {
-  background: #1976d2;
   color: #fff;
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -30,15 +29,21 @@
   min-height: 80px;
   min-width: 100%;
 }
+.home-card:nth-child(1) {
+  background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+}
+.home-card:nth-child(2) {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+.home-card:nth-child(3) {
+  background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%);
+}
+.home-card.logout-card {
+  background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+}
 .home-card:hover {
-  background: #1565c0;
+  filter: brightness(0.95) saturate(1.2);
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-}
-.logout-card {
-  background: #c62828;
-}
-.logout-card:hover {
-  background: #b71c1c;
 }
 .card-title {
   font-weight: 600;
