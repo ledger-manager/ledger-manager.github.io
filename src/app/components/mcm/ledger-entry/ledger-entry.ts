@@ -107,6 +107,12 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
         this.router.navigate(['/mcm']);
       }
     }
+    /**
+     * Navigate to main home page (regardless of role)
+     */
+    goToMainHome(): void {
+      this.router.navigate(['/']);
+    }
   @ViewChild('tableWrapper') tableWrapper?: ElementRef<HTMLDivElement>;
   
   members = signal<MemberData[]>([]);

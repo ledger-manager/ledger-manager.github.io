@@ -1,0 +1,17 @@
+<div class="app-home-container">
+  <h1>Ledger Manager</h1>
+  <div class="app-home-cards">
+    <div *ngIf="canAccessMCM" class="home-card" (click)="goTo('mcm/ledger-entry')">
+      <span class="card-title">Ledger Entry</span>
+    </div>
+    <div *ngIf="canAccessMCM" class="home-card" (click)="goTo('mcm/rate-card')">
+      <span class="card-title">Rate Card</span>
+    </div>
+    <div *ngIf="canAccessMCM" class="home-card" (click)="goTo('mcm/customers')">
+      <span class="card-title">Customers</span>
+    </div>
+    <div class="home-card logout-card" (click)="logout()">
+      <span class="card-title">Logout</span>
+    </div>
+  </div>
+</div>

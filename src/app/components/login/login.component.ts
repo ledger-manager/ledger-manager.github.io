@@ -79,19 +79,7 @@ export class LoginComponent {
 
           // Redirect after short delay to show success message
           setTimeout(() => {
-            const roles = this.authService.getUserRoles();
-            let target = '/';
-            // If admin, land on main home page and allow access to both modules
-            if (this.authService.isAdmin()) {
-              target = '/';
-            } else if (roles.includes('mcm_member')) {
-              target = '/mcm';
-            } else if (roles.includes('wsm_member')) {
-              target = '/wsm';
-            } else {
-              target = '/';
-            }
-            this.router.navigate([target]);
+            this.router.navigate(['/']);
           }, 1000);
         } else {
           this.messageService.add({

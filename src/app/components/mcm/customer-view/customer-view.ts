@@ -63,6 +63,13 @@ export class CustomerView implements OnInit {
     }
   }
 
+    /**
+     * Navigate to main home page (regardless of role)
+     */
+    goToMainHome(): void {
+      this.router.navigate(['/']);
+    }
+
   ngOnInit(): void {
     this.loadCustomers();
   }
