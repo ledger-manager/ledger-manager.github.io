@@ -1,0 +1,63 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Price List</h3>
+    <div class="d-flex gap-2">
+      <!-- Copy to CouchDB button -->
+      @if (!isDataLoaded) {
+        <button pButton type="button" label="COPY to COUCH" (click)="copyDataToCouch()" class="p-button-info" [disabled]="isCopying">
+          @if (isCopying) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          }
+        </button>
+      }
+      @if (!isDataLoaded && !isLoading) {
+        <button pButton type="button" label="Load Data" (click)="loadData()" class="p-button-info"></button>
+      }
+      <!-- <button *ngIf="isDataLoaded" pButton type="button" label="Edit Prices" (click)="goToEdit()" class="p-button-secondary"></button> -->
+
+  <!-- Loading/Copy progress spinner -->
+  @if (isLoading || isCopying) {
+    <div class="text-center mt-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">{{ isLoading ? 'Loading' : 'Copying' }}...</span>
+      </div>
+      <p class="mt-2">{{ isCopying ? copyProgress : 'Loading prices...' }}</p>
+    </div>
+  }
+
+  @if (isDataLoaded && !isLoading && !isCopying) {
+    <p-table [value]="sortedProducts" [scrollable]="true" scrollHeight="calc(100vh - 200px)" styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem;">Index</th>
+          <th>Name</th>
+          <th class="text-end" style="width: 8rem;">Quarter</th>
+          <th class="text-end" style="width: 8rem;">Pint</th>
+          <th class="text-end" style="width: 8rem;">Nip</th>
+          <th class="text-end" style="width: 8rem;">Drink</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-p let-i="rowIndex">
+        @for (p of sortedProducts; track p) {
+          <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ p.name }}</td>
+            <td class="text-end">{{ displayVal(p.q) }}</td>
+            <td class="text-end">{{ displayVal(p.p) }}</td>
+            <td class="text-end">{{ displayVal(p.n) }}</td>
+            <td class="text-end">{{ displayVal(p.d) }}</td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6">No products found for this location.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+  @if (!isDataLoaded && !isLoading) {
+    <div class="text-center mt-5">
+      <p>Click "Load Data" to see the price list for the selected location and date.</p>
+    </div>
+  }

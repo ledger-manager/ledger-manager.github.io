@@ -1,0 +1,60 @@
+<style>
+  input[type="tel"] {
+    min-width: 7ch;
+  }
+</style>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h3>Edit Price</h3>
+    <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+  </div>
+
+  @if (savedMessage) {
+    <div class="alert alert-success mt-2" role="alert">
+      {{ savedMessage }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="table-responsive mt-3">
+      <table class="table table-sm table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th>Seq</th>
+            <th>Name</th>
+            <th>Group</th>
+            <th>Type</th>
+            <th>Sub Type</th>
+            <th class="text-end">Q</th>
+            <th class="text-end">P</th>
+            <th class="text-end">N</th>
+            <th class="text-end">D</th>
+          </tr>
+        </thead>
+        <tbody formArrayName="rows">
+          @for (row of rows.controls; track row.get('seq')?.value) {
+            <tr [formGroupName]="$index">
+              <td>{{ row.get('seq')?.value }}</td>
+              <td>{{ row.get('name')?.value }}</td>
+              <td>{{ row.get('group')?.value }}</td>
+              <td>{{ row.get('type')?.value }}</td>
+              <td>{{ row.get('subType')?.value }}</td>
+              <td class="text-end">
+                <input type="tel" formControlName="q" class="form-control form-control-sm text-end">
+              </td>
+              <td class="text-end">
+                <input type="tel" formControlName="p" class="form-control form-control-sm text-end">
+              </td>
+              <td class="text-end">
+                <input type="tel" formControlName="n" class="form-control form-control-sm text-end">
+              </td>
+              <td class="text-end">
+                <input type="tel" formControlName="d" class="form-control form-control-sm text-end">
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,80 @@
+ <style>
+  input[type="tel"] {
+    min-width: 7ch;
+
+  }
+</style>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h3>Receipt Entry for {{formatDisplayDate(selectedDate)}}</h3>
+    <div class="d-flex gap-2">
+      <!-- Copy to CouchDB button -->
+      @if (!isDataLoaded) {
+        <button pButton type="button" label="COPY to COUCH" (click)="copyDataToCouch()" class="p-button-info" [disabled]="isCopying">
+          @if (isCopying) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          }
+        </button>
+      }
+      @if (!isDataLoaded && !isLoading) {
+        <button pButton type="button" label="Load Data" (click)="loadData()" class="p-button-primary"></button>
+      }
+      @if (isDataLoaded) {
+        <button pButton type="submit" form="receiptEntryForm" class="p-button-success" [disabled]="isSaving">
+          @if (!isSaving) { Save }
+          @if (isSaving) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Saving...
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Loading/Copy progress spinner -->
+  @if (isLoading || isCopying) {
+    <div class="text-center mt-4">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">{{ isLoading ? 'Loading' : 'Copying' }}...</span>
+      </div>
+      @if (copyProgress) {
+        <p class="mt-2">{{ copyProgress }}</p>
+      }
+    </div>
+  }
+
+  <!-- Initial state message -->
+  @if (!isDataLoaded && !isLoading && !isCopying) {
+    <div class="alert alert-info mt-3">
+      Click "Load Data" to view and edit receipts.
+    </div>
+  }
+
+  <!-- Data table and form -->
+ @if (isDataLoaded && !isLoading && !isCopying) {
+  @if (savedMessage) {
+    <div class="alert mt-2" [ngClass]="{'alert-success': !savedMessage.includes('failed'), 'alert-danger': savedMessage.includes('failed')}" role="alert">
+      {{ savedMessage }}
+    </div>
+  }
+  <form (ngSubmit)="save()" [formGroup]="form" id="receiptEntryForm" class="mt-3">
+    <p-table [value]="rows.controls" [scrollable]="true" scrollHeight="calc(100vh - 200px)" styleClass="p-datatable-sm p-datatable-gridlines" formArrayName="rows">
+      <ng-template pTemplate="header">
+        <tr>
+          <th pFrozenColumn style="width: 70px;">Index</th>
+          <th pFrozenColumn style="width: 250px;">Name</th>
+          <th style="width: 150px;" class="text-end">Q Qty</th>
+          <th style="width: 150px;" class="text-end">P Qty</th>
+          <th style="width: 150px;" class="text-end">N Qty</th>
+          <th style="width: 150px;" class="text-end">D Qty</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body">
+        @for (row of rows.controls; track row.get('seq')?.value) {
+          <tr [formGroupName]="$index">
+          </tr>
+        }
+      </ng-template>
+    </p-table>
+  </form>
+}

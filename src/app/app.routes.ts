@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { AppHomeComponent } from './components/home/home.component'; 
 import { LoginComponent } from './components/login/login.component';
+// Removed invalid LoginComponent import
 
 
 export const routes: Routes = [

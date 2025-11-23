@@ -1,3 +1,65 @@
+<style>
+  .custno-btn {
+    border-radius: 50% !important;
+    border: 2px solid #1976d2 !important;
+    background: #e3f2fd !important;
+    color: #1976d2 !important;
+    height: 28px !important;
+    width: 28px !important;
+    min-width: 0 !important;
+    font-size: 15px !important;
+    line-height: 28px !important;
+    text-align: center !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    font-weight: 600 !important;
+  }
+  .custno-btn:hover {
+    box-shadow: 0 0 6px #1976d244;
+    border-color: #1565c0 !important;
+    background: #bbdefb !important;
+    color: #1565c0 !important;
+  }
+    .ledger-table td.col-custno {
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      background: none !important;
+      font-size: 15px !important;
+      line-height: 1 !important;
+    }
+    .ledger-table td.col-custno .custno-btn {
+      padding: 0 !important;
+      margin: 0 !important;
+      /* Do NOT override border/background/width/height so the circle is visible */
+      min-width: 0 !important;
+      font-size: 15px !important;
+      line-height: 1 !important;
+      display: block !important;
+    }
+  .ledger-table .col-custno,
+  .ledger-table td.col-custno,
+  .ledger-table th.col-custno {
+    width: 48px !important;
+    min-width: 32px !important;
+    max-width: 60px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-align: center !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .custno-content, .custno-overlay, .custno-actions {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  /* Remove conflicting overrides for .custno-btn so the circle is always visible */
+</style>
 <div class="ledger-container">
   <p-toast position="top-right"></p-toast>
   
@@ -6,10 +68,88 @@
     <h2>Ledger</h2>
   </div>
 
+
+  <!-- Controls Row: Today/10 Day, AM/PM, Export, Mock -->
+  <div class="ledger-controls flex items-center gap-3" style="margin-bottom: 1rem;">
+    <div class="date-range-buttons">
+      <p-button 
+        [label]="selectedDateRange() === 'DAY' ? 'Today' : '10 Day'"
+        (onClick)="toggleDateRange()"
+        size="small"
+        [severity]="'info'"
+        [outlined]="false"
+      ></p-button>
+    </div>
+    <div class="session-toggle">
+      <p-button 
+        [label]="selectedSessionDisplay() === 'AM-PM' ? 'AM-PM' : selectedSessionDisplay()"
+        (onClick)="toggleSmartSession()"
+        size="small"
+        [severity]="'info'"
+        [outlined]="false"
+      ></p-button>
+    </div>
+    <!-- Export buttons -->
+    @if (isAdmin()) {
+      <p-button 
+        label="JSON"
+        (onClick)="exportToJSON()"
+        size="small"
+        severity="info"
+        icon="pi pi-file"
+        [outlined]="true"
+      ></p-button>
+    }
+    <p-button 
+      label="PDF"
+      (onClick)="exportToPDF()"
+      size="small"
+      severity="info"
+      icon="pi pi-download"
+      [outlined]="true"
+    ></p-button>
+    @if (bulkEditDate() && bulkEditSession() && (selectedDateRange() === 'TEN_DAY' || (selectedDateRange() === 'DAY' && isAdmin()))) {
+      <p-button 
+        label="Mock" 
+        (onClick)="fillMockDataForSession()"
+        [outlined]="true"
+        size="small"
+        severity="secondary"
+        icon="pi pi-database"
+      ></p-button>
+    }
+  </div>
+
+
+  <!-- Day Navigation Panel (shown when Today mode is selected) -->
+  @if (selectedDateRange() === 'DAY') {
+    <div class="billing-period-panel" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+      <p-button 
+        icon="pi pi-chevron-left" 
+        (onClick)="goToPreviousDay()"
+        [outlined]="true"
+        size="small"
+        severity="secondary"
+        [disabled]="!hasPreviousDay()"
+        [ngStyle]="{ 'margin-right': '1rem' }"
+      ></p-button>
+      <span class="period-dates" style="flex: 1; text-align: center; font-weight: 500;">{{ getDateDisplay(currentDateStr()) }}</span>
+      <p-button 
+        icon="pi pi-chevron-right" 
+        (onClick)="goToNextDay()"
+        [outlined]="true"
+        size="small"
+        severity="secondary"
+        [disabled]="!hasNextDay()"
+        [ngStyle]="{ 'margin-left': '1rem' }"
+      ></p-button>
+    </div>
+  }
+
   <!-- Billing Period Panel (shown when 10 Day is selected) -->
   @if (selectedDateRange() === 'TEN_DAY') {
     @for (period of getTenDayPeriods(); track period.tenDayStart) {
-      <div class="billing-period-panel">
+      <div class="billing-period-panel" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <p-button 
           icon="pi pi-chevron-left" 
           (onClick)="goToPreviousPeriod()"
@@ -17,8 +157,9 @@
           size="small"
           severity="secondary"
           [disabled]="!hasPreviousPeriod() && !isAdmin()"
+          [ngStyle]="{ 'margin-right': '1rem' }"
         ></p-button>
-        <span class="period-dates">{{ getPeriodDateRange(period) }}</span>
+        <span class="period-dates" style="flex: 1; text-align: center; font-weight: 500;">{{ getPeriodDateRange(period) }}</span>
         <p-button 
           icon="pi pi-chevron-right" 
           (onClick)="goToNextPeriod()"
@@ -26,6 +167,7 @@
           size="small"
           severity="secondary"
           [disabled]="isCurrentPeriod()"
+          [ngStyle]="{ 'margin-left': '1rem' }"
         ></p-button>
       </div>
     }
@@ -40,83 +182,7 @@
              class="p-datatable-gridlines ledger-table" 
              [tableStyle]="{'width': 'auto'}">
        <ng-template #caption>
-        <div class="flex items-center gap-3">
-            <div class="date-range-buttons">
-              <p-button 
-                label="Today" 
-                (onClick)="setDateRange('DAY')"
-                size="small"
-                [severity]="selectedDateRange() === 'DAY' ? 'info' : 'secondary'"
-                [outlined]="selectedDateRange() !== 'DAY'"
-              ></p-button>
-              <p-button 
-                label="10 Day" 
-                (onClick)="setDateRange('TEN_DAY')"
-                size="small"
-                [severity]="selectedDateRange() === 'TEN_DAY' ? 'info' : 'secondary'"
-                [outlined]="selectedDateRange() !== 'TEN_DAY'"
-              ></p-button>
-            </div>
-            <div class="session-toggle-buttons">
-              <p-button 
-                label="AM" 
-                (onClick)="toggleAM()"
-                size="small"
-                [severity]="showAM() ? 'info' : 'secondary'"
-                [outlined]="!showAM()"
-              ></p-button>
-              <p-button 
-                label="PM" 
-                (onClick)="togglePM()"
-                size="small"
-                [severity]="showPM() ? 'info' : 'secondary'"
-                [outlined]="!showPM()"
-              ></p-button>
-            </div>
-            <p-selectButton 
-              [options]="exportFormatOptions" 
-              (onChange)="exportData($event.value)"
-              optionLabel="label" 
-              optionValue="value"
-              size="small"
-              [disabled]="selectedDateRange() === 'DAY'"
-            >
-              <ng-template let-item pTemplate>
-                <i class="pi pi-download"></i> {{ item.label }}
-              </ng-template>
-            </p-selectButton>
-            @if (bulkEditDate() && bulkEditSession()) {
-              <p-button 
-                label="Mock Data" 
-                (onClick)="fillMockDataForSession()"
-                [outlined]="true"
-                size="small"
-                severity="secondary"
-                icon="pi pi-database"
-              ></p-button>
-            }
-            @if (selectedDateRange() === 'TEN_DAY' && !isCurrentPeriod()) {
-              @if (!ledgerData()?.isBilled) {
-                <p-button 
-                  label="Run Bills" 
-                  (onClick)="runBills()"
-                  size="small"
-                  severity="success"
-                  icon="pi pi-calculator"
-                ></p-button>
-              }
-              @if (ledgerData()?.isBilled && isAdmin()) {
-                <p-button 
-                  label="Re-run Bills" 
-                  (onClick)="reRunBills()"
-                  size="small"
-                  severity="warn"
-                  icon="pi pi-refresh"
-                ></p-button>
-              }
-            }
-            <!-- Removed standalone Export JSON and Export PDF buttons. Only select button remains for all roles. -->
-        </div>
+        <!-- Controls moved above billing period navigation -->
       </ng-template>
       
       <ng-template pTemplate="header">
@@ -127,14 +193,14 @@
           @for (dateStr of visibleDates(); track dateStr; let first = $first) {
             <th [colSpan]="getDateColspan()" class="date-header" [class.day-separator]="!first">{{ getDateDisplay(dateStr) }}</th>
           }
-          <!-- Billed Column -->
-          @if (ledgerData()?.isBilled) {
+          <!-- Billed Column: Only show in TEN_DAY mode -->
+          @if (selectedDateRange() === 'TEN_DAY' && ledgerData()?.isBilled) {
             <th [colSpan]="5" [rowSpan]="2" class="billed-header">Billed</th>
           }
         </tr>
         <tr>
           <!-- Customer Detail Columns -->
-          <th class="col-custno frozen-cols" [rowSpan]="2" pFrozenColumn>Cust No</th>
+          <th class="col-custno frozen-cols" [rowSpan]="2" pFrozenColumn>No.</th>
           <th class="col-name frozen-cols" [rowSpan]="2" pFrozenColumn>Name</th>
         
         <!-- Session Column Groups for each date -->
@@ -219,8 +285,8 @@
             <th class="col-fat"></th>
           }
         }
-        <!-- Billed Sub-columns -->
-        @if (ledgerData()?.isBilled) {
+        <!-- Billed Sub-columns: Only show in TEN_DAY mode -->
+        @if (selectedDateRange() === 'TEN_DAY' && ledgerData()?.isBilled) {
           <th class="col-billed-qty">Qty</th>
           <th class="col-billed-amount">Amount</th>
           <th class="col-billed-prevdue">Prev</th>
@@ -319,8 +385,8 @@
           }
         }
         
-        <!-- Billed Columns -->
-        @if (ledgerData()?.isBilled) {
+        <!-- Billed Columns: Only show in TEN_DAY mode -->
+        @if (selectedDateRange() === 'TEN_DAY' && ledgerData()?.isBilled) {
           @if (getCustBill(row.custNo); as custBill) {
             <td class="col-billed-qty">{{ custBill.totalQty > 0 ? (custBill.totalQty | number: '1.1-1') : '' }}</td>
             <td class="col-billed-amount">{{ custBill.amount > 0 ? (custBill.amount | number: '1.2-2') : '' }}</td>
@@ -362,8 +428,8 @@
           }
         }
         
-        <!-- Billed Totals -->
-        @if (ledgerData()?.isBilled) {
+        <!-- Billed Totals: Only show in TEN_DAY mode -->
+        @if (selectedDateRange() === 'TEN_DAY' && ledgerData()?.isBilled) {
           <td class="col-billed-qty totals-value">{{ getTotalQty() | number: '1.1-1' }}</td>
           <td class="col-billed-amount totals-value">{{ ledgerData()?.totalAmt | number: '1.2-2' }}</td>
           <td class="col-billed-prevdue totals-value">{{ getTotalPrevDue() | number: '1.2-2' }}</td>

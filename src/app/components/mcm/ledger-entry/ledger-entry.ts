@@ -49,6 +49,113 @@ interface TableRow {
   styleUrls: ['./ledger-entry.scss']
 })
 export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
+          /**
+           * Returns true if there is a previous day with session data in the ledger
+           */
+          hasPreviousDay(): boolean {
+            const tenDay = this.ledgerData();
+            if (!tenDay) return false;
+            const currentIndex = tenDay.records.findIndex(r => this.getDateString(r.day) === this.currentDateStr());
+            if (currentIndex > 0) return true;
+            // At first day, check if previous period exists and has data
+            return this.hasPreviousPeriod?.() === true;
+          }
+
+          /**
+           * Returns true if there is a next day with session data in the ledger
+           */
+          hasNextDay(): boolean {
+            const tenDay = this.ledgerData();
+            if (!tenDay) return false;
+            const currentIndex = tenDay.records.findIndex(r => this.getDateString(r.day) === this.currentDateStr());
+            if (currentIndex < tenDay.records.length - 1 && currentIndex !== -1) return true;
+            // At last day, check if next period exists and has data
+            return this.hasNextPeriod?.() === true;
+          }
+
+          /**
+           * Navigates to the previous day in the ledger
+           */
+          goToPreviousDay(): void {
+            const tenDay = this.ledgerData();
+            if (!tenDay) return;
+            const currentIndex = tenDay.records.findIndex(r => this.getDateString(r.day) === this.currentDateStr());
+            if (currentIndex > 0) {
+              const prevDay = tenDay.records[currentIndex - 1];
+              this.currentDateStr.set(this.getDateString(prevDay.day));
+              this.buildTableRows();
+            } else if (this.hasPreviousPeriod?.() === true) {
+              // At first day, go to last day of previous period
+              const previousPeriodStart = getPreviousPeriodStart(tenDay.tenDayStart);
+              this.ledgerService.getLedgerData(previousPeriodStart).subscribe({
+                next: (data: TenDayLedger) => {
+                  if (data.records.length > 0) {
+                    const lastDay = data.records[data.records.length - 1];
+                    this.ledgerData.set(data);
+                    this.currentDateStr.set(this.getDateString(lastDay.day));
+                    this.buildTableRows();
+                    this.checkPreviousPeriodExists();
+                    this.checkNextPeriodExists();
+                  }
+                }
+              });
+            }
+          }
+
+          /**
+           * Navigates to the next day in the ledger
+           */
+          goToNextDay(): void {
+            const tenDay = this.ledgerData();
+            if (!tenDay) return;
+            const currentIndex = tenDay.records.findIndex(r => this.getDateString(r.day) === this.currentDateStr());
+            if (currentIndex < tenDay.records.length - 1 && currentIndex !== -1) {
+              const nextDay = tenDay.records[currentIndex + 1];
+              this.currentDateStr.set(this.getDateString(nextDay.day));
+              this.buildTableRows();
+            } else if (this.hasNextPeriod?.() === true) {
+              // At last day, go to first day of next period
+              const nextPeriodStart = this.getNextPeriodStart(tenDay.tenDayStart);
+              this.ledgerService.getLedgerData(nextPeriodStart).subscribe({
+                next: (data: TenDayLedger) => {
+                  if (data.records.length > 0) {
+                    const firstDay = data.records[0];
+                    this.ledgerData.set(data);
+                    this.currentDateStr.set(this.getDateString(firstDay.day));
+                    this.buildTableRows();
+                    this.checkPreviousPeriodExists();
+                    this.checkNextPeriodExists();
+                  }
+                }
+              });
+            }
+          }
+        /**
+         * Toggle between DAY and TEN_DAY modes for the ledger entry view
+         */
+        toggleDateRange(): void {
+          const current = this.selectedDateRange();
+          if (current === 'DAY') {
+            this.selectedDateRange.set('TEN_DAY');
+          } else {
+            // Switch to Today mode and set to today's date only (preserve session mode)
+            this.selectedDateRange.set('DAY');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            this.currentDateStr.set(this.getDateString(today));
+            // Load ledger data for today's billing period
+            const periodStart = getCurrentPeriodStart();
+            this.ledgerService.getLedgerData(periodStart).subscribe(data => {
+              this.ledgerData.set(data);
+              this.buildTableRows();
+              this.checkPreviousPeriodExists();
+              this.checkNextPeriodExists();
+              this.ensureTodayRecordsExist();
+              this.buildTableRows();
+              this.updateUrlParams();
+            });
+          }
+        }
       // --- Navigation helpers ---
       private parsePeriodParam(periodParam?: string): string | undefined {
         if (!periodParam) return undefined;
@@ -84,8 +191,15 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
           const validatedPeriod = this.parsePeriodParam(periodParam);
           this.currentDateStr.set(validatedPeriod || '');
           return validatedPeriod;
-        } else if (dateRange === 'DAY' && dateParam) {
-          this.currentDateStr.set(dateParam);
+        } else if (dateRange === 'DAY') {
+          if (dateParam) {
+            this.currentDateStr.set(dateParam);
+          } else {
+            // No date param, set to today's date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            this.currentDateStr.set(this.getDateString(today));
+          }
           return undefined;
         }
         this.currentDateStr.set('');
@@ -128,17 +242,42 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
   // Individual AM/PM selection signals
   showAM = signal(true);
   showPM = signal(true);
-  
+
   // Computed signal for session display based on AM/PM selection
   selectedSessionDisplay = computed(() => {
     const am = this.showAM();
     const pm = this.showPM();
-    
     if (am && pm) return 'AM-PM';
     if (am) return 'AM';
     if (pm) return 'PM';
-    return 'AM-PM'; // Fallback (shouldn't happen)
+    return 'AM-PM';
   });
+
+  /**
+   * Smart session toggle: toggles between AM/PM and latest session (AM or PM)
+   */
+  toggleSmartSession(): void {
+    const now = new Date();
+    const hour = now.getHours();
+    const isMorning = hour < 12;
+    const ampm = this.selectedSessionDisplay();
+    if (ampm === 'AM-PM') {
+      // If currently showing both, switch to latest session only
+      if (isMorning) {
+        this.showAM.set(true);
+        this.showPM.set(false);
+      } else {
+        this.showAM.set(false);
+        this.showPM.set(true);
+      }
+    } else {
+      // If currently showing only one, switch to both
+      this.showAM.set(true);
+      this.showPM.set(true);
+    }
+    // Rebuild table rows to reflect session change
+    this.buildTableRows();
+  }
   
   dateRangeOptions = [
     { label: 'Today', value: 'DAY' },
@@ -186,15 +325,21 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
         dates.add(this.getDateString(dayRecord.day));
       });
     }
-    return Array.from(dates).sort();
+    const result = Array.from(dates).sort();
+    console.log('[DEBUG] allDates computed:', result.length, 'dates:', result);
+    return result;
   });
 
   // Show dates based on selection: single day or all days from TEN_DAY_DATA
   visibleDates = computed(() => {
     if (this.selectedDateRange() === 'DAY') {
-      return [this.currentDateStr()];
+      const result = [this.currentDateStr()];
+      console.log('[DEBUG] visibleDates (DAY):', result.length, result);
+      return result;
     } else {
-      return this.allDates();
+      const result = this.allDates();
+      console.log('[DEBUG] visibleDates (TEN_DAY):', result.length, result);
+      return result;
     }
   });
 
@@ -209,39 +354,13 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authService: AuthService
   ) {
-    // Watch for changes in signals and update URL
+    // Only update URL when signals change, do not trigger data/table updates here
     effect(() => {
-      // Track these signals
       const range = this.selectedDateRange();
       const session = this.selectedSessionDisplay();
       const dateStr = this.currentDateStr();
-      // Update URL when any of these change (but skip during initial load)
       if (!this.isInitialLoad) {
         this.updateUrlParams();
-      }
-    });
-    
-    // Watch for switch to DAY mode and trigger "go to today" behavior
-    effect(() => {
-      const dateRange = this.selectedDateRange();
-      // Only run this effect if the user actually switches the date range, not on initial load
-      if (!this.isInitialLoad) {
-        if (dateRange === 'DAY') {
-          // Clear bulk edit state when switching to DAY mode
-          this.bulkEditDate.set(null);
-          this.bulkEditSession.set(null);
-          this.ensureTodayRecordsExist();
-          // Force change detection after mode switch
-          setTimeout(() => this.cdr.detectChanges(), 0);
-        } else if (dateRange === 'TEN_DAY') {
-          // Clear bulk edit state when switching to TEN_DAY mode
-          this.bulkEditDate.set(null);
-          this.bulkEditSession.set(null);
-          // Only reload ledger data if not initial load
-          this.loadLedgerData();
-          // Force change detection after mode switch
-          setTimeout(() => this.cdr.detectChanges(), 0);
-        }
       }
     });
   }
@@ -289,20 +408,18 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       // Use current billing period only if param is missing or invalid
       periodStart = getCurrentPeriodStart();
     }
-    
     // Load ledger data from CouchDB
     this.ledgerService.getLedgerData(periodStart).subscribe(data => {
       this.ledgerData.set(data);
       this.buildTableRows();
-      
       // Check if previous period exists
       this.checkPreviousPeriodExists();
-      
       // If in DAY mode, ensure today's records exist
       if (this.selectedDateRange() === 'DAY') {
         this.ensureTodayRecordsExist();
+        // Rebuild table rows after ensuring today's records
+        this.buildTableRows();
       }
-      
       // Always update URL after data and signals are set
       this.updateUrlParams();
       // Mark initial load complete
@@ -329,11 +446,14 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    this.members().forEach(member => {
+    const membersArr = this.members();
+    const visibleDatesArr = this.visibleDates();
+    console.log('[DEBUG] buildTableRows: members:', membersArr.length, 'visibleDates:', visibleDatesArr.length);
+
+    membersArr.forEach(member => {
       const dayRecords = ledgerMap.get(member.custNo) || new Map();
 
-      // Use visibleDates instead of allDates to ensure current date is included in DAY mode
-      this.visibleDates().forEach(dateStr => {
+      visibleDatesArr.forEach(dateStr => {
         if (!dayRecords.has(dateStr)) {
           dayRecords.set(dateStr, {
             custNo: member.custNo,
@@ -352,6 +472,7 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       });
     });
 
+    console.log('[DEBUG] buildTableRows called. Rows count:', rows.length, 'Visible dates:', visibleDatesArr.length);
     this.tableRows.set(rows);
   }
 
@@ -447,6 +568,7 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
   }
 
   hasPreviousPeriod = signal<boolean>(false);
+  hasNextPeriod = signal<boolean>(false);
 
   private checkPreviousPeriodExists(): void {
     const tenDay = this.ledgerData();
@@ -467,6 +589,26 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       },
       error: () => {
         this.hasPreviousPeriod.set(false);
+      }
+    });
+  }
+
+  private checkNextPeriodExists(): void {
+    const tenDay = this.ledgerData();
+    if (!tenDay) {
+      this.hasNextPeriod.set(false);
+      return;
+    }
+    const nextPeriodStart = this.getNextPeriodStart(tenDay.tenDayStart);
+    this.ledgerService.getLedgerData(nextPeriodStart).subscribe({
+      next: (data: TenDayLedger) => {
+        const hasData = data.records.some(record => 
+          record.quantities.some(q => q.AM.qty || q.AM.fat || q.PM.qty || q.PM.fat)
+        );
+        this.hasNextPeriod.set(hasData);
+      },
+      error: () => {
+        this.hasNextPeriod.set(false);
       }
     });
   }
@@ -497,7 +639,7 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
     const previousPeriodStart = getPreviousPeriodStart(tenDay.tenDayStart);
     this.changePeriod(this.getDateString(previousPeriodStart));
     // Update URL to reflect new period
-    setTimeout(() => this.updateUrlParams(), 0);
+    this.updateUrlParams();
   }
 
   goToNextPeriod(): void {
@@ -509,7 +651,7 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
     if (nextPeriodStart.getTime() > today.getTime()) return;
     this.changePeriod(this.getDateString(nextPeriodStart));
     // Update URL to reflect new period
-    setTimeout(() => this.updateUrlParams(), 0);
+    this.updateUrlParams();
   }
 
   isEditable(dateStr: string, session: 'AM' | 'PM'): boolean {
@@ -728,7 +870,6 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
 
   updateCellValue(custNo: number, dateStr: string, session: 'AM' | 'PM', field: 'qty' | 'fat', value: string): void {
     const numValue = value ? parseFloat(value) : 0;
-    
     // Prevent negative numbers
     if (numValue < 0) {
       return;
@@ -739,26 +880,21 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
 
     // Find or create the day record
     let dayRecord = tenDay.records.find(r => this.getDateString(r.day) === dateStr);
-    
     if (!dayRecord) {
-      // Create new day record - parse at midnight local time
       const [year, month, day] = dateStr.split('-').map(Number);
       const date = new Date(year, month - 1, day, 0, 0, 0, 0);
       dayRecord = {
         day: date,
-        quantities: []        
+        quantities: []
       };
       tenDay.records.push(dayRecord);
     }
 
     // Find or create customer record in quantities
     let custRecord = dayRecord.quantities.find(q => q.custNo === custNo);
-    
     if (custRecord) {
-      // Update existing record
       custRecord[session][field] = numValue;
     } else {
-      // Add new customer record
       const newRecord: CustDayRecord = {
         custNo,
         AM: { qty: 0, fat: 0 },
@@ -768,13 +904,8 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       dayRecord.quantities.push(newRecord);
     }
 
-    // Update the signal to trigger change detection
+    // Only update the ledgerData signal, do not rebuild table rows
     this.ledgerData.set({ ...tenDay });
-    
-    // Rebuild table rows to sync with updated data
-    this.buildTableRows();
-    
-    // Mark that we have unsaved changes
     this.hasUnsavedChanges = true;
   }
 
@@ -1059,46 +1190,14 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  toggleAM(): void {
-    const currentAM = this.showAM();
-    const currentPM = this.showPM();
-    
-    // If both are selected, unselect PM (keep only AM)
-    if (currentAM && currentPM) {
-      this.showPM.set(false);
-    }
-    // If only AM is selected, select both
-    else if (currentAM && !currentPM) {
-      this.showPM.set(true);
-    }
-    // If only PM is selected, select AM (both will be selected)
-    else if (!currentAM && currentPM) {
-      this.showAM.set(true);
-    }
-  }
-
-  togglePM(): void {
-    const currentAM = this.showAM();
-    const currentPM = this.showPM();
-    
-    // If both are selected, unselect AM (keep only PM)
-    if (currentAM && currentPM) {
-      this.showAM.set(false);
-    }
-    // If only PM is selected, select both
-    else if (!currentAM && currentPM) {
-      this.showAM.set(true);
-    }
-    // If only AM is selected, select PM (both will be selected)
-    else if (currentAM && !currentPM) {
-      this.showPM.set(true);
-    }
-  }
+  // Removed toggleAM and togglePM, replaced by toggleSmartSession
 
   onDateRangeChange(newValue: string): void {
     // Only change if the new value is different from current
     if (newValue !== this.selectedDateRange()) {
       this.selectedDateRange.set(newValue);
+      // Rebuild table rows to reflect mode change
+      this.buildTableRows();
     }
   }
 
@@ -1106,6 +1205,8 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
     // Only change if different from current selection
     if (range !== this.selectedDateRange()) {
       this.selectedDateRange.set(range);
+      // Rebuild table rows to reflect mode change
+      this.buildTableRows();
     }
   }
 

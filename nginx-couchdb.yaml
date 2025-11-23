@@ -40,7 +40,7 @@ server {
         proxy_hide_header Access-Control-Allow-Headers;
         
         # Add SameSite=None to AuthSession cookie for cross-origin (remove Secure for local HTTP dev)
-        proxy_cookie_path / "/; Secure; SameSite=None";
+        proxy_cookie_path / "/; SameSite=None";
 
         # Force our own CORS headers - using always to ensure they apply to all status codes
         set $cors_allowed_origin "";
