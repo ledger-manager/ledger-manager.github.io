@@ -189,8 +189,17 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
         let periodParam = params['period'];
         if (dateRange === 'TEN_DAY' && periodParam) {
           const validatedPeriod = this.parsePeriodParam(periodParam);
-          this.currentDateStr.set(validatedPeriod || '');
-          return validatedPeriod;
+          if (validatedPeriod) {
+            this.currentDateStr.set(validatedPeriod);
+            return validatedPeriod;
+          } else {
+            // If invalid, set to today's date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = this.getDateString(today);
+            this.currentDateStr.set(todayStr);
+            return todayStr;
+          }
         } else if (dateRange === 'DAY') {
           if (dateParam) {
             this.currentDateStr.set(dateParam);
@@ -202,8 +211,11 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
           }
           return undefined;
         }
-        this.currentDateStr.set('');
-        return undefined;
+        // Default: set to today's date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        this.currentDateStr.set(this.getDateString(today));
+        return this.getDateString(today);
       }
 
       private changePeriod(periodParam?: string): void {
