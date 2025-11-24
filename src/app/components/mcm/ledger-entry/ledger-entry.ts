@@ -689,19 +689,18 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private ensureTodayRecordsExist(): void {
-    const todayStr = this.currentDateStr();
+    const todayDate = new Date();
+    const todayStr = this.getDateString(todayDate);
     const tenDay = this.ledgerData();
-    
     if (!tenDay) return;
-    
+
     // Check if today's record already exists
     const todayRecordExists = tenDay.records.some(dayRecord => 
       this.getDateString(dayRecord.day) === todayStr
     );
-    
+
     if (!todayRecordExists) {
       // Create empty ledger day record for today
-      const todayDate = new Date();
       const emptyDayRecord: LedgerDayRecord = {
         day: todayDate,
         quantities: this.members().map(member => ({
@@ -710,11 +709,12 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
           PM: { qty: 0, fat: 0 }
         }))
       };
-      
-      // Add to ledger data
       tenDay.records.push(emptyDayRecord);
       this.ledgerData.set({ ...tenDay });
-      
+      // Set currentDateStr to today if not already set
+      if (!this.currentDateStr() || this.currentDateStr() === '') {
+        this.currentDateStr.set(todayStr);
+      }
       // Rebuild table rows
       this.buildTableRows();
     }
