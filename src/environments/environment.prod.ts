@@ -2,7 +2,7 @@ export const environment = {
   production: true,
   BASE_URL: 'https://holy-calorifacient-rosendo.ngrok-free.dev/api',
   DB_NAME: 'mcm_prod',
-  WSM_DB_NAME: 'wsm_dev',
+  WSM_DB_NAME: 'wsm_prod',
 
   JSON_BIN_API_URL: "https://api.jsonbin.io/v3/b",
 
