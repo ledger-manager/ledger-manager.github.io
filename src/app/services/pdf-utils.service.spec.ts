@@ -16,17 +16,17 @@ describe('PdfUtilsService', () => {
 
   describe('Date Formatting', () => {
     it('should format date for file names (YYYY-MM-DD)', () => {
-      const date = new Date('2025-01-15');
+      const date = new Date(2025, 0, 15);
       expect(service.formatDateForFile(date)).toBe('2025-01-15');
     });
 
     it('should format date short (MM/DD)', () => {
-      const date = new Date('2025-01-05');
-      expect(service.formatDateShort(date)).toBe('01/05');
+      const date = new Date(2025, 0, 5);
+      expect(service.formatDateShort(date)).toBe('Jan, 5');
     });
 
     it('should format date for display with locale', () => {
-      const date = new Date('2025-01-15');
+      const date = new Date(2025, 0, 15);
       const formatted = service.formatDateDisplay(date);
       expect(formatted).toContain('Jan');
       expect(formatted).toContain('15');

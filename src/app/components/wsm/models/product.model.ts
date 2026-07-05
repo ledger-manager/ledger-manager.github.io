@@ -1,14 +1,16 @@
 export class Product {
   name: string;
-  q?: number | null;
-  p?: number | null;
-  n?: number | null;
-  d?: number | null;
+  q?: any;
+  p?: any;
+  n?: any;
+  d?: any;
   seq?: number;
+  item_id?: number;
   group?: string;
   type?: number;
   subType?: number;
   displaySeq?: number;
+  active?: boolean;
 
   constructor(init?: Partial<Product>) {
     this.name = '';

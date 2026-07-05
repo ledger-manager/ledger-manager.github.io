@@ -1,0 +1,15 @@
+.beer-row {
+  background-color: #fff8e1 !important;
+}
+
+.beer-row td {
+  background-color: transparent !important;
+}
+
+.beer-row:nth-child(odd) {
+  background-color: #fff8e1 !important;
+}
+
+.beer-row:nth-child(even) {
+  background-color: #ffe8c2 !important;
+}

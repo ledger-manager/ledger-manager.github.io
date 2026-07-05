@@ -1,19 +1,18 @@
 <style>
   input[type="tel"] {
-    min-width: 7ch;
+    min-width: 5ch;
+    max-width: 5ch;
   }
 </style>
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center">
     <h3>Edit Price</h3>
-    <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+    <button pButton type="button" severity="primary" (click)="save()">Save</button>
   </div>
 
-  @if (savedMessage) {
-    <div class="alert alert-success mt-2" role="alert">
-      {{ savedMessage }}
-    </div>
-  }
+  <div *ngIf="savedMessage" class="alert alert-success mt-2" role="alert">
+    {{ savedMessage }}
+  </div>
 
   <form [formGroup]="form" (ngSubmit)="save()">
     <div class="table-responsive mt-3">
@@ -25,34 +24,34 @@
             <th>Group</th>
             <th>Type</th>
             <th>Sub Type</th>
-            <th class="text-end">Q</th>
-            <th class="text-end">P</th>
-            <th class="text-end">N</th>
-            <th class="text-end">D</th>
+            <th class="text-end" style="width: 8ch;">Q</th>
+            <th class="text-end" style="width: 8ch;">P</th>
+            <th class="text-end" style="width: 8ch;">N</th>
+            <th class="text-end" style="width: 8ch;">D</th>
           </tr>
         </thead>
         <tbody formArrayName="rows">
-          @for (row of rows.controls; track row.get('seq')?.value) {
-            <tr [formGroupName]="$index">
+          <ng-container *ngFor="let row of rows.controls; let i = index">
+            <tr [formGroupName]="i">
               <td>{{ row.get('seq')?.value }}</td>
               <td>{{ row.get('name')?.value }}</td>
               <td>{{ row.get('group')?.value }}</td>
               <td>{{ row.get('type')?.value }}</td>
               <td>{{ row.get('subType')?.value }}</td>
               <td class="text-end">
-                <input type="tel" formControlName="q" class="form-control form-control-sm text-end">
+                <input type="tel" maxlength="4" formControlName="q" class="form-control form-control-sm text-end">
               </td>
               <td class="text-end">
-                <input type="tel" formControlName="p" class="form-control form-control-sm text-end">
+                <input type="tel" maxlength="4" formControlName="p" class="form-control form-control-sm text-end">
               </td>
               <td class="text-end">
-                <input type="tel" formControlName="n" class="form-control form-control-sm text-end">
+                <input type="tel" maxlength="4" formControlName="n" class="form-control form-control-sm text-end">
               </td>
               <td class="text-end">
-                <input type="tel" formControlName="d" class="form-control form-control-sm text-end">
+                <input type="tel" maxlength="4" formControlName="d" class="form-control form-control-sm text-end">
               </td>
             </tr>
-          }
+          </ng-container>
         </tbody>
       </table>
     </div>

@@ -45,10 +45,18 @@ export class AppStateService {
     let internalDateString: string;
     if (typeof date === 'string') {
       const parts = date.split('-');
-      // If format is DD-MM-YYYY, convert to YYYY-MM-DD for internal state
-      internalDateString = parts[2] ? `${parts[2]}-${parts[1]}-${parts[0]}` : date;
+      const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+      const dmyDatePattern = /^\d{2}-\d{2}-\d{4}$/;
+
+      if (isoDatePattern.test(date)) {
+        internalDateString = date;
+      } else if (dmyDatePattern.test(date)) {
+        internalDateString = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      } else {
+        const parsed = new Date(date);
+        internalDateString = isNaN(parsed.getTime()) ? date : formatDate(parsed);
+      }
     } else {
-      // If it's a Date object, format it to YYYY-MM-DD
       internalDateString = formatDate(date);
     }
     this.selectedDate.next(internalDateString);

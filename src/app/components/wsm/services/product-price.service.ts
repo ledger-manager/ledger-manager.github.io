@@ -1,30 +1,22 @@
 import { Injectable } from '@angular/core';
-import { Observable, switchMap, take } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AppStateService } from './app-state.service';
 import { ItemBinLookupService, ItemLookupBin } from './item-bin-lookup.service';
 import { ProductPrice } from '../models/product-list.model';
+import { CouchDataService } from './couch-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductPriceService {
   getPrice(): Observable<ProductPrice | null> {
-    // TODO: Replace with actual logic
-    return new Observable<ProductPrice | null>(observer => {
-      observer.next({
-        effDate: '',
-        products: [],
-        itemType: 'products',
-        saleAmt: 0,
-        stockAmt: 0
-      });
-      observer.complete();
-    });
+    return this.couchData.getPrice();
   }
 
   constructor(
     private lookupService: ItemBinLookupService,
-    private appState: AppStateService
+    private appState: AppStateService,
+    private couchData: CouchDataService
   ) { }
 
   // ...existing code...

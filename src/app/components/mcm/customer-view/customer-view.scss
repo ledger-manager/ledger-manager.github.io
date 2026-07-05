@@ -78,6 +78,9 @@
 }
 
 .table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
   .table-actions {
     display: flex;
     justify-content: flex-end;
@@ -115,10 +118,6 @@
       white-space: nowrap;
     }
   }
-
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  // ...existing code...
 
   @media (min-width: 769px) {
     ::ng-deep .p-datatable {

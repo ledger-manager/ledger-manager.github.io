@@ -43,7 +43,7 @@ export class CouchdbService {
       );
     }
   private baseUrl = environment.BASE_URL;
-  private defaultDb = environment.DB_NAME;
+  private defaultDb = environment.WSM_DB_NAME;
   private authToken: string | null = null;
   private currentUser$ = new BehaviorSubject<string | null>(null);
 

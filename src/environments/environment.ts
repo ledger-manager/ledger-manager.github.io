@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  BASE_URL: 'http://192.168.1.224/api',
+  BASE_URL: 'http://192.168.0.29:30080/api',
   DB_NAME: 'mcm_dev',
   WSM_DB_NAME: 'wsm_dev',
   

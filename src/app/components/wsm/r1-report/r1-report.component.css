@@ -1,1 +1,25 @@
 .text-end { text-align: right; }
+.billing-period-panel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background-color: #edf4ff;
+  border: 1px solid #d6e9ff;
+  border-radius: 0.35rem;
+  margin-bottom: 1rem;
+}
+.period-dates {
+  font-weight: 600;
+  color: #0d6efd;
+  min-width: 12rem;
+  text-align: center;
+}
+.table-wrapper {
+  max-height: calc(100vh - 320px);
+  overflow: auto;
+}
+.p-datatable-sm .p-datatable-thead > tr > th,
+.p-datatable-sm .p-datatable-tbody > tr > td {
+  padding: 0.5rem 0.75rem;
+}

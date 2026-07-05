@@ -367,10 +367,13 @@ export class PaymentReport implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goToToday(): void {
-    const todayStr = this.currentDateStr();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = this.getDateString(today);
     
     // Switch to Day mode
     this.selectedDateRange.set('DAY');
+    this.currentDateStr.set(todayStr);
     
     // Check if today's data exists in ledger
     const tenDay = this.ledgerData();
@@ -381,6 +384,8 @@ export class PaymentReport implements OnInit, AfterViewInit, OnDestroy {
     if (!todayExists) {
       // Create empty records for today if it doesn't exist
       this.ensureTodayRecordsExist();
+    } else {
+      this.buildTableRows();
     }
     
     // Show toast message
@@ -393,7 +398,9 @@ export class PaymentReport implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private ensureTodayRecordsExist(): void {
-    const todayStr = this.currentDateStr();
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    const todayStr = this.getDateString(todayDate);
     const tenDay = this.ledgerData();
     
     if (!tenDay) return;
@@ -405,7 +412,6 @@ export class PaymentReport implements OnInit, AfterViewInit, OnDestroy {
     
     if (!todayRecordExists) {
       // Create empty ledger day record for today
-      const todayDate = new Date();
       const emptyDayRecord: LedgerDayRecord = {
         day: todayDate,
         quantities: this.members().map(member => ({
@@ -418,6 +424,7 @@ export class PaymentReport implements OnInit, AfterViewInit, OnDestroy {
       // Add to ledger data
       tenDay.records.push(emptyDayRecord);
       this.ledgerData.set({ ...tenDay });
+      this.currentDateStr.set(todayStr);
       
       // Rebuild table rows
       this.buildTableRows();

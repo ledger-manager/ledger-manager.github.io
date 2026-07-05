@@ -1,0 +1,868 @@
+{
+  "_id": "PRODUCT_PRICE_LIST",
+  "_rev": "15-f28eb39ae14e9a9926c53ad00f34014b",
+  "effDate": "20260704",
+  "itemType": "products",
+  "products": [
+    {
+      "name": "Royal Rathambore",
+      "q": {
+        "p": 2400
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 1,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 21720,
+      "item_id": 1
+    },
+    {
+      "name": "Morphoes",
+      "q": {
+        "p": 1720
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 2,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 14373,
+      "item_id": 2
+    },
+    {
+      "name": "Itish Trail",
+      "q": {
+        "p": 1360
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 3,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 24500,
+      "item_id": 3
+    },
+    {
+      "name": "Black & White",
+      "q": {
+        "p": 2080
+      },
+      "p": {
+        "p": 1050
+      },
+      "n": {
+        "p": 520
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 4,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 20912,
+      "item_id": 4
+    },
+    {
+      "name": "Blenders Pride",
+      "q": {
+        "p": 1360
+      },
+      "p": {
+        "p": 680
+      },
+      "n": {
+        "p": 340
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 5,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 21720,
+      "item_id": 5
+    },
+    {
+      "name": "Signature",
+      "q": {
+        "p": 1360
+      },
+      "p": {
+        "p": 680
+      },
+      "n": {
+        "p": 340
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 6,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 13292,
+      "item_id": 6
+    },
+    {
+      "name": "Royal Challenge",
+      "q": {
+        "p": 1200
+      },
+      "p": {
+        "p": 600
+      },
+      "n": {
+        "p": 300
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 7,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 6697,
+      "item_id": 7
+    },
+    {
+      "name": "8 P M",
+      "q": {
+        "p": 880
+      },
+      "p": {
+        "p": 440
+      },
+      "n": {
+        "p": 220
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 8,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 7505,
+      "item_id": 8
+    },
+    {
+      "name": "Royal Green",
+      "q": {
+        "p": 880
+      },
+      "p": {
+        "p": 440
+      },
+      "n": {
+        "p": 220
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 9,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 7101,
+      "item_id": 9
+    },
+    {
+      "name": "B / O",
+      "q": {
+        "p": 1400
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 10,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8313,
+      "item_id": 10
+    },
+    {
+      "name": "Royal Stag",
+      "q": {
+        "p": 880
+      },
+      "p": {
+        "p": 440
+      },
+      "n": {
+        "p": 220
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 11,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 9061,
+      "item_id": 11
+    },
+    {
+      "name": "M H W",
+      "q": {
+        "p": 920
+      },
+      "p": {
+        "p": 460
+      },
+      "n": {
+        "p": 230
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 12,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 6217,
+      "item_id": 12
+    },
+    {
+      "name": "M H B",
+      "q": {
+        "p": 730
+      },
+      "p": {
+        "p": 370
+      },
+      "n": {
+        "p": 180
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 13,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 7505,
+      "item_id": 13
+    },
+    {
+      "name": "M C",
+      "q": {
+        "p": 720
+      },
+      "p": {
+        "p": 380
+      },
+      "n": {
+        "p": 190
+      },
+      "d": {
+        "p": 100
+      },
+      "seq": 14,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8672,
+      "item_id": 14
+    },
+    {
+      "name": "I B",
+      "q": {
+        "p": 720
+      },
+      "p": {
+        "p": 380
+      },
+      "n": {
+        "p": 190
+      },
+      "d": {
+        "p": 100
+      },
+      "seq": 15,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 7633,
+      "item_id": 15
+    },
+    {
+      "name": "O C Blue",
+      "q": {
+        "p": 720
+      },
+      "p": {
+        "p": 380
+      },
+      "n": {
+        "p": 190
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 16,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8717,
+      "item_id": 16
+    },
+    {
+      "name": "R C B lue",
+      "q": {
+        "p": 880
+      },
+      "p": {
+        "p": 440
+      },
+      "n": {
+        "p": 220
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 17,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 13565,
+      "item_id": 17
+    },
+    {
+      "name": "B 7",
+      "q": {
+        "p": 880
+      },
+      "p": {
+        "p": 440
+      },
+      "n": {
+        "p": 220
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 18,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8717,
+      "item_id": 18
+    },
+    {
+      "name": "F Siraz",
+      "q": {
+        "p": null
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": 280
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 19,
+      "group": "Liquor",
+      "type": 1,
+      "subType": 1,
+      "active": true,
+      "cp": 3311,
+      "item_id": 19
+    },
+    {
+      "name": "O C",
+      "q": {
+        "p": 640
+      },
+      "p": {
+        "p": 320
+      },
+      "n": {
+        "p": 160
+      },
+      "d": {
+        "p": 90
+      },
+      "seq": 20,
+      "group": "Liquor",
+      "type": 1,
+      "subType": 1,
+      "active": true,
+      "cp": 3311,
+      "item_id": 20
+    },
+    {
+      "name": "Cheef",
+      "q": {
+        "p": 550
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": 110
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 21,
+      "group": "Liquor",
+      "type": 1,
+      "subType": 1,
+      "active": true,
+      "cp": 2743,
+      "item_id": 21
+    },
+    {
+      "name": "Opera",
+      "q": {
+        "p": null
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": 220
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 22,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 9600,
+      "item_id": 22
+    },
+    {
+      "name": "M M",
+      "q": {
+        "p": null
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": 210
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 23,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 20105,
+      "item_id": 23
+    },
+    {
+      "name": "I ConiQ",
+      "q": {
+        "p": 720
+      },
+      "p": {
+        "p": 380
+      },
+      "n": {
+        "p": 190
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 24,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8717,
+      "item_id": 24
+    },
+    {
+      "name": "X Clamation",
+      "q": {
+        "p": 1200
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 25,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 13200,
+      "item_id": 25
+    },
+    {
+      "name": "Breezer",
+      "q": {
+        "p": null
+      },
+      "p": {
+        "p": 130
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 26,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 14880,
+      "item_id": 26
+    },
+    {
+      "name": "Class Vodka",
+      "q": {
+        "p": null
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 27,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 7200,
+      "item_id": 27
+    },
+    {
+      "name": "O A B",
+      "q": {
+        "p": null
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 28,
+      "group": "Liquor",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 7200,
+      "item_id": 28
+    },
+    {
+      "name": "Knock Out",
+      "q": {
+        "p": 190
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 29,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 28320,
+      "item_id": 29
+    },
+    {
+      "name": "H 5000",
+      "q": {
+        "p": 190
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 30,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 18240,
+      "item_id": 30
+    },
+    {
+      "name": "K F (Strong)",
+      "q": {
+        "p": 190
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 31,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 14373,
+      "item_id": 31
+    },
+    {
+      "name": "K F (Lite)",
+      "q": {
+        "p": 180
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 32,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 16000,
+      "item_id": 32
+    },
+    {
+      "name": "R C",
+      "q": {
+        "p": 180
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 33,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 14000,
+      "item_id": 33
+    },
+    {
+      "name": "B D",
+      "q": {
+        "p": 250
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 34,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8000,
+      "item_id": 34
+    },
+    {
+      "name": "B D Strong",
+      "q": {
+        "p": 260
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 35,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 15000,
+      "item_id": 35
+    },
+    {
+      "name": "K F Ultra",
+      "q": {
+        "p": 250
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 36,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 12000,
+      "item_id": 36
+    },
+    {
+      "name": "B D Tins",
+      "q": {
+        "p": 190
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 37,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 4950,
+      "item_id": 37
+    },
+    {
+      "name": "B D S Tins",
+      "q": {
+        "p": 190
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 38,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 8000,
+      "item_id": 38
+    },
+    {
+      "name": "Green Deer",
+      "q": {
+        "p": 180
+      },
+      "p": {
+        "p": null
+      },
+      "n": {
+        "p": null
+      },
+      "d": {
+        "p": null
+      },
+      "seq": 39,
+      "group": "Beer",
+      "type": 0,
+      "subType": 1,
+      "active": true,
+      "cp": 5409,
+      "item_id": 39
+    }
+  ],
+  "saleAmt": 0,
+  "stockAmt": 0
+}

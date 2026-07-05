@@ -337,21 +337,15 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
         dates.add(this.getDateString(dayRecord.day));
       });
     }
-    const result = Array.from(dates).sort();
-    console.log('[DEBUG] allDates computed:', result.length, 'dates:', result);
-    return result;
+    return Array.from(dates).sort();
   });
 
   // Show dates based on selection: single day or all days from TEN_DAY_DATA
   visibleDates = computed(() => {
     if (this.selectedDateRange() === 'DAY') {
-      const result = [this.currentDateStr()];
-      console.log('[DEBUG] visibleDates (DAY):', result.length, result);
-      return result;
+      return [this.currentDateStr()];
     } else {
-      const result = this.allDates();
-      console.log('[DEBUG] visibleDates (TEN_DAY):', result.length, result);
-      return result;
+      return this.allDates();
     }
   });
 
@@ -460,7 +454,6 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
 
     const membersArr = this.members();
     const visibleDatesArr = this.visibleDates();
-    console.log('[DEBUG] buildTableRows: members:', membersArr.length, 'visibleDates:', visibleDatesArr.length);
 
     membersArr.forEach(member => {
       const dayRecords = ledgerMap.get(member.custNo) || new Map();
@@ -484,7 +477,6 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       });
     });
 
-    console.log('[DEBUG] buildTableRows called. Rows count:', rows.length, 'Visible dates:', visibleDatesArr.length);
     this.tableRows.set(rows);
   }
 
@@ -675,10 +667,13 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goToToday(): void {
-    const todayStr = this.currentDateStr();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = this.getDateString(today);
     
     // Switch to Day mode
     this.selectedDateRange.set('DAY');
+    this.currentDateStr.set(todayStr);
     
     // Check if today's data exists in ledger
     const tenDay = this.ledgerData();
@@ -689,6 +684,8 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
     if (!todayExists) {
       // Create empty records for today if it doesn't exist
       this.ensureTodayRecordsExist();
+    } else {
+      this.buildTableRows();
     }
     
     // Show toast message
@@ -723,10 +720,7 @@ export class LedgerEntry implements OnInit, AfterViewInit, OnDestroy {
       };
       tenDay.records.push(emptyDayRecord);
       this.ledgerData.set({ ...tenDay });
-      // Set currentDateStr to today if not already set
-      if (!this.currentDateStr() || this.currentDateStr() === '') {
-        this.currentDateStr.set(todayStr);
-      }
+      this.currentDateStr.set(todayStr);
       // Rebuild table rows
       this.buildTableRows();
     }

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { LedgerEntry } from './ledger-entry';
 
 describe('LedgerEntry', () => {
@@ -7,13 +9,13 @@ describe('LedgerEntry', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LedgerEntry]
+      imports: [LedgerEntry],
+      providers: [provideHttpClient(), provideRouter([])]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(LedgerEntry);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

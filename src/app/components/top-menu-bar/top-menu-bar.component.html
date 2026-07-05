@@ -1,0 +1,22 @@
+<p-menubar [model]="items">
+  <ng-template #start>
+    <div class="menu-title">
+      <span>{{ pageTitle }}</span>
+    </div>
+  </ng-template>
+  <ng-template #end>
+    <div class="user-menu-wrapper">
+      <div class="user-menu">
+        <button class="user-btn">
+          <i class="pi pi-user"></i>
+          <span>{{ userName }}</span>
+          <i class="pi pi-angle-down"></i>
+        </button>
+        <div class="user-dropdown">
+          <a routerLink="/profile"><i class="pi pi-id-card"></i> Profile</a>
+          <a (click)="onLogout()"><i class="pi pi-sign-out"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-menubar>

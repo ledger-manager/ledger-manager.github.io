@@ -18,6 +18,11 @@ export class AppHomeComponent {
     return this.authService.isAdmin() || roles.includes('mcm_member');
   }
 
+  get canAccessWSM(): boolean {
+    const roles = this.authService.getUserRoles();
+    return this.authService.isAdmin() || roles.includes('wsm_member');
+  }
+
   goTo(path: string) {
     this.router.navigate([`/${path}`]);
   }

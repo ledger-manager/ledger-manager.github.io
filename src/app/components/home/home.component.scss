@@ -30,13 +30,28 @@
   min-width: 100%;
 }
 .home-card:nth-child(1) {
-  background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+  background: linear-gradient(135deg, #2b8065 0%, #21969e 100%);
 }
 .home-card:nth-child(2) {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: linear-gradient(135deg, #457555 0%, #1dc47e 100%);
 }
 .home-card:nth-child(3) {
-  background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%);
+  background: linear-gradient(135deg, #5eb36c 0%, #40b698 100%);
+}
+.home-card:nth-child(4) {
+  background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+}
+.home-card:nth-child(5) {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+.home-card:nth-child(6) {
+  background: linear-gradient(135deg, #b49c59 0%, #3aaa6c 100%);
+}
+.home-card:nth-child(7) {
+  background: linear-gradient(135deg, #47ac60 0%, #256579 100%);
+}
+.home-card:nth-child(8) {
+  background: linear-gradient(135deg, #459ba7 0%, #4543c5 100%);
 }
 .home-card.logout-card {
   background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);

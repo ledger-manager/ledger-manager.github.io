@@ -1,0 +1,62 @@
+name: CouchDB Backend Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/couchdb-ngrok/**'
+      - '.github/workflows/couchdb-ngrok.yml'
+
+jobs:
+  validate-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: |
+          bash -n scripts/couchdb-ngrok/bootstrap.sh
+          bash -n scripts/couchdb-ngrok/get-public-url.sh
+
+  deploy-backend:
+    needs: validate-scripts
+    runs-on: self-hosted
+    environment: couchdb-ngrok
+    env:
+      NAMESPACE: mcm-backend
+      COUCHDB_ADMIN_USER: ${{ secrets.COUCHDB_ADMIN_USER }}
+      COUCHDB_ADMIN_PASSWORD: ${{ secrets.COUCHDB_ADMIN_PASSWORD }}
+      NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+      NGROK_DOMAIN: ${{ vars.NGROK_DOMAIN }}
+      NGROK_DOMAIN_ID: ${{ vars.NGROK_DOMAIN_ID }}
+      CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }}
+      MCM_DATABASES: ${{ vars.MCM_DATABASES }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x scripts/couchdb-ngrok/*.sh
+
+      - name: Deploy CouchDB, Nginx, and ngrok
+        run: scripts/couchdb-ngrok/bootstrap.sh
+
+      - name: Capture public URL
+        id: tunnel
+        run: |
+          PUBLIC_URL="$(scripts/couchdb-ngrok/get-public-url.sh)"
+          echo "public_url=$PUBLIC_URL" >> "$GITHUB_OUTPUT"
+          echo "Public URL: $PUBLIC_URL"
+
+      - name: Publish deployment summary
+        run: |
+          {
+            echo "## CouchDB Backend Deployment"
+            echo ""
+            echo "- Namespace: ${NAMESPACE}"
+            echo "- Public URL: ${{ steps.tunnel.outputs.public_url }}"
+            echo "- API base URL: ${{ steps.tunnel.outputs.public_url }}/api"
+          } >> "$GITHUB_STEP_SUMMARY"

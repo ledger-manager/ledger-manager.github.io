@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 import { CustomerView } from './customer-view';
 
@@ -8,13 +10,13 @@ describe('CustomerView', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomerView]
+      imports: [CustomerView],
+      providers: [provideHttpClient(), provideRouter([])]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(CustomerView);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

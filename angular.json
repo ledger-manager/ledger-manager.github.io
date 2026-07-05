@@ -30,6 +30,13 @@
               "src/styles.scss",
               "primeflex/primeflex.css",
               "primeicons/primeicons.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "canvg",
+              "html2canvas",
+              "core-js",
+              "raf",
+              "rgbcolor"
             ]
           },
           "configurations": {
@@ -42,8 +49,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "16kB",
-                  "maximumError": "20kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "24kB"
                 }
               ],
               "outputPath": "dist",
@@ -82,6 +89,10 @@
           "builder": "@angular/build:karma",
           "options": {
             "tsConfig": "tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "inlineStyleLanguage": "scss",
             "assets": [
               {
