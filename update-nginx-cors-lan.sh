@@ -36,11 +36,11 @@ data:
 
     map $http_origin $cors_allowed_origin {
       default "";
-      ~^https?://localhost(?::\d+)?$ $http_origin;
-      ~^https?://127\.0\.0\.1(?::\d+)?$ $http_origin;
-      ~^https?://192\.168\.\d{1,3}\.\d{1,3}(?::\d+)?$ $http_origin;
-      ~^https?://10\.\d{1,3}\.\d{1,3}\.\d{1,3}(?::\d+)?$ $http_origin;
-      ~^https?://172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}(?::\d+)?$ $http_origin;
+      ~^https?://localhost(?::[0-9]+)?$ $http_origin;
+      ~^https?://127\.0\.0\.1(?::[0-9]+)?$ $http_origin;
+      ~^https?://192\.168\.[0-9]+\.[0-9]+(?::[0-9]+)?$ $http_origin;
+      ~^https?://10\.[0-9]+\.[0-9]+\.[0-9]+(?::[0-9]+)?$ $http_origin;
+      ~^https?://172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]+\.[0-9]+(?::[0-9]+)?$ $http_origin;
       ~^https://ledger-manager\.github\.io$ $http_origin;
     }
 
