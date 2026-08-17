@@ -157,7 +157,66 @@
     </ng-container>
     <ng-container *ngIf="!noDataAvailable">
       <div class="day-sales-table-wrapper">
-        <div class="table-wrapper">
+          <div class="table-wrapper">
+            <p-dialog header="R 1 Report" [(visible)]="showR1Dialog" [modal]="true" [style]="{width: '540px'}" (onHide)="closeR1Dialog()">
+              <div class="table-responsive">
+                <table class="table table-sm day-sales-table" style="min-width:420px;">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th class="num-header">Opening</th>
+                      <th class="num-header">Receipt</th>
+                      <th class="num-header">Sales</th>
+                      <th class="num-header">Closing</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><strong>Q</strong></td>
+                      <td class="num-cell">{{ r1Data.liquor.Q.opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.Q.receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.Q.sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.Q.closing | number:'1.0-0' }}</td>
+                    </tr>
+                    <tr><td><strong>P</strong></td>
+                      <td class="num-cell">{{ r1Data.liquor.P.opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.P.receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.P.sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.P.closing | number:'1.0-0' }}</td>
+                    </tr>
+                    <tr><td><strong>N</strong></td>
+                      <td class="num-cell">{{ r1Data.liquor.N.opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.N.receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.N.sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.N.closing | number:'1.0-0' }}</td>
+                    </tr>
+                    <tr><td><strong>D</strong></td>
+                      <td class="num-cell">{{ r1Data.liquor.D.opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.D.receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.D.sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.liquor.D.closing | number:'1.0-0' }}</td>
+                    </tr>
+                    <tr><td><strong>650 ml</strong></td>
+                      <td class="num-cell">{{ r1Data.sizes['650 ml'].opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['650 ml'].receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['650 ml'].sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['650 ml'].closing | number:'1.0-0' }}</td>
+                    </tr>
+                    <tr><td><strong>500 ml</strong></td>
+                      <td class="num-cell">{{ r1Data.sizes['500 ml'].opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['500 ml'].receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['500 ml'].sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['500 ml'].closing | number:'1.0-0' }}</td>
+                    </tr>
+                    <tr><td><strong>275 ml</strong></td>
+                      <td class="num-cell">{{ r1Data.sizes['275 ml'].opening | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['275 ml'].receipt | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['275 ml'].sales | number:'1.0-0' }}</td>
+                      <td class="num-cell">{{ r1Data.sizes['275 ml'].closing | number:'1.0-0' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </p-dialog>
         <p-table [value]="rows" [scrollable]="true" scrollHeight="flex" styleClass="day-sales-table p-datatable-sm p-datatable-striped p-datatable-gridlines">
           <ng-template pTemplate="header">
             <tr>
@@ -228,7 +287,9 @@
 
           <ng-template pTemplate="footer">
             <tr>
-              <td pFrozenColumn><strong>Total</strong></td>
+              <td pFrozenColumn><strong>Total</strong>
+                <button pButton type="button" label="R 1 Rpt" class="p-button-sm p-button-warning" style="margin-left:0.5rem;background-color:#ffd8b5;border-color:#ffbf80;color:#1b1b1b" (click)="openR1Dialog()"></button>
+              </td>
               <td class="num-cell">{{ totalQty.prev.q !== undefined ? (totalQty.prev.q | number:'1.0-0') : '' }}</td>
               <td class="num-cell">{{ totalQty.prev.p !== undefined ? (totalQty.prev.p | number:'1.0-0') : '' }}</td>
               <td class="num-cell">{{ totalQty.prev.n !== undefined ? (totalQty.prev.n | number:'1.0-0') : '' }}</td>

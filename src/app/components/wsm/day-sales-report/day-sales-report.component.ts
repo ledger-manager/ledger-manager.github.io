@@ -13,6 +13,7 @@ import { Product } from '../models/product.model';
 import { ItemBinLookupService } from '../services/item-bin-lookup.service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { CommonModule } from '@angular/common';
 
 interface StockSalesRow {
@@ -30,7 +31,7 @@ interface StockSalesRow {
   selector: 'app-day-sales-report',
   templateUrl: './day-sales-report.component.html',
   standalone: true,
-  imports: [TableModule, ButtonModule, CommonModule],
+  imports: [TableModule, ButtonModule, DialogModule, CommonModule],
   styles: ["@import '../shared-styles.scss';"]
 })
 
@@ -43,6 +44,21 @@ export class DaySalesReportComponent implements OnInit, OnDestroy {
   totalAmount: number = 0;
   // Totals for each denomination and group
   totalQty: { prev: any; receipt: any; curr: any; sales: any } = { prev: { q: 0, p: 0, n: 0, d: 0 }, receipt: { q: 0, p: 0, n: 0, d: 0 }, curr: { q: 0, p: 0, n: 0, d: 0 }, sales: { q: 0, p: 0, n: 0, d: 0 } };
+  // R-1 dialog state and computed data
+  showR1Dialog: boolean = false;
+  r1Data: any = {
+    liquor: {
+      Q: { opening: 0, receipt: 0, sales: 0, closing: 0 },
+      P: { opening: 0, receipt: 0, sales: 0, closing: 0 },
+      N: { opening: 0, receipt: 0, sales: 0, closing: 0 },
+      D: { opening: 0, receipt: 0, sales: 0, closing: 0 }
+    },
+    sizes: {
+      '650 ml': { opening: 0, receipt: 0, sales: 0, closing: 0 },
+      '500 ml': { opening: 0, receipt: 0, sales: 0, closing: 0 },
+      '275 ml': { opening: 0, receipt: 0, sales: 0, closing: 0 }
+    }
+  };
   isDataLoaded = false;
   isLoading = false;
   isSaving = false;
@@ -77,6 +93,72 @@ export class DaySalesReportComponent implements OnInit, OnDestroy {
         this.buildReport();
       }
     });
+  }
+
+  /** Compute R-1 totals and populate `r1Data`.
+   *  - For `Liquor` group: compute totals for Q, P, N, D across opening (prev), receipt, sales, closing (curr).
+   *  - For other groups (e.g., Beer): aggregate Q into size buckets: 650 ml (default), 500 ml (name contains 'tin'/'tins'), 275 ml (name contains 'breezer').
+   */
+  computeR1Totals(): void {
+    // reset
+    this.r1Data = {
+      liquor: {
+        Q: { opening: 0, receipt: 0, sales: 0, closing: 0 },
+        P: { opening: 0, receipt: 0, sales: 0, closing: 0 },
+        N: { opening: 0, receipt: 0, sales: 0, closing: 0 },
+        D: { opening: 0, receipt: 0, sales: 0, closing: 0 }
+      },
+      sizes: {
+        '650 ml': { opening: 0, receipt: 0, sales: 0, closing: 0 },
+        '500 ml': { opening: 0, receipt: 0, sales: 0, closing: 0 },
+        '275 ml': { opening: 0, receipt: 0, sales: 0, closing: 0 }
+      }
+    };
+
+    this.rows.forEach(r => {
+      const group = String((r as any).group ?? '').toLowerCase();
+      if (group.includes('liquor')) {
+        (['q', 'p', 'n', 'd'] as const).forEach(k => {
+          const denom = k.toUpperCase();
+          const open = (r as any).prev?.[k];
+          const rec = (r as any).receipt?.[k];
+          const sale = (r as any).sales?.[k];
+          const close = (r as any).curr?.[k];
+          if (open !== null && open !== undefined && Number.isFinite(Number(open))) this.r1Data.liquor[denom].opening += Number(open);
+          if (rec !== null && rec !== undefined && Number.isFinite(Number(rec))) this.r1Data.liquor[denom].receipt += Number(rec);
+          if (sale !== null && sale !== undefined && Number.isFinite(Number(sale))) this.r1Data.liquor[denom].sales += Number(sale);
+          if (close !== null && close !== undefined && Number.isFinite(Number(close))) this.r1Data.liquor[denom].closing += Number(close);
+        });
+      } else {
+        // Use the product `group` value to determine size bucket (650/500/275 ml).
+        const gname = String((r as any).group ?? '').toLowerCase();
+        let sizeKey = '650 ml';
+        if (gname.includes('275')) {
+          sizeKey = '275 ml';
+        } else if (gname.includes('500')) {
+          sizeKey = '500 ml';
+        } else if (gname.includes('650')) {
+          sizeKey = '650 ml';
+        }
+        const open = (r as any).prev?.q;
+        const rec = (r as any).receipt?.q;
+        const sale = (r as any).sales?.q;
+        const close = (r as any).curr?.q;
+        if (open !== null && open !== undefined && Number.isFinite(Number(open))) this.r1Data.sizes[sizeKey].opening += Number(open);
+        if (rec !== null && rec !== undefined && Number.isFinite(Number(rec))) this.r1Data.sizes[sizeKey].receipt += Number(rec);
+        if (sale !== null && sale !== undefined && Number.isFinite(Number(sale))) this.r1Data.sizes[sizeKey].sales += Number(sale);
+        if (close !== null && close !== undefined && Number.isFinite(Number(close))) this.r1Data.sizes[sizeKey].closing += Number(close);
+      }
+    });
+  }
+
+  openR1Dialog(): void {
+    this.computeR1Totals();
+    this.showR1Dialog = true;
+  }
+
+  closeR1Dialog(): void {
+    this.showR1Dialog = false;
   }
 
   goHome(): void {
@@ -371,6 +453,7 @@ export class DaySalesReportComponent implements OnInit, OnDestroy {
           });
         });
         this.totalQty = totals;
+        this.computeR1Totals();
         this.isDataLoaded = true;
         this.hasChanges = false;
       },
