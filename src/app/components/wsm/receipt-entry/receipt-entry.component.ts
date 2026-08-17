@@ -9,7 +9,9 @@ import { ProductPriceService } from '../services/product-price.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-receipt-entry',
@@ -17,7 +19,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./receipt-entry.component.scss'],
   styles: ["@import '../shared-styles.scss';"],
   standalone: true,
-  imports: [ReactiveFormsModule, TableModule, ButtonModule, CommonModule]
+  imports: [ReactiveFormsModule, TableModule, ButtonModule, ToastModule, CommonModule]
+  ,
+  providers: [MessageService]
 })
 export class ReceiptEntryComponent implements OnInit, OnDestroy {
     formatDisplayDate(date: string | null): string {
@@ -180,6 +184,11 @@ export class ReceiptEntryComponent implements OnInit, OnDestroy {
         })
       ).subscribe(ok => {
         this.savedMessage = ok ? 'Receipts saved successfully.' : 'Failed to save receipts.';
+        if (ok) {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Receipts saved successfully.', life: 3000 });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save receipts.', life: 4000 });
+        }
         this.hasChanges = false;
         if (this.msgTimer) clearTimeout(this.msgTimer);
         this.msgTimer = setTimeout(() => { this.savedMessage = null; this.cdr.markForCheck(); }, 3000);
@@ -274,6 +283,8 @@ export class ReceiptEntryComponent implements OnInit, OnDestroy {
     private productService: ProductPriceService,
     private cdr: ChangeDetectorRef,
     private router: Router
+    ,
+    private messageService: MessageService
   ) {
     this.form = this.fb.group({ rows: this.fb.array([]) });
   }

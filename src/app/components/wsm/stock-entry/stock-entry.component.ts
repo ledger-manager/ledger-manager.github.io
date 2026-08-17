@@ -11,7 +11,9 @@ import { ProductPriceService } from '../services/product-price.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
  
 @Component({
   selector: 'app-stock-entry',
@@ -19,7 +21,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./stock-entry.component.scss'],
   styles: ["@import '../shared-styles.scss';"],
   standalone: true,
-  imports: [ReactiveFormsModule, TableModule, ButtonModule, CommonModule]
+  imports: [ReactiveFormsModule, TableModule, ButtonModule, ToastModule, CommonModule]
+  ,
+  providers: [MessageService]
 })
 export class StockEntryComponent implements OnInit, OnDestroy {
     formatDisplayDate(date: string | null): string {
@@ -185,6 +189,11 @@ export class StockEntryComponent implements OnInit, OnDestroy {
         })
       ).subscribe(ok => {
         this.savedMessage = ok ? 'Stock saved successfully.' : 'Failed to save stock.';
+        if (ok) {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Stock saved successfully.', life: 3000 });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save stock.', life: 4000 });
+        }
         this.hasChanges = false;
         if (this.msgTimer) clearTimeout(this.msgTimer);
         this.msgTimer = setTimeout(() => { this.savedMessage = null; this.cdr.markForCheck(); }, 3000);
@@ -279,6 +288,8 @@ export class StockEntryComponent implements OnInit, OnDestroy {
     private productService: ProductPriceService,
     private cdr: ChangeDetectorRef,
     private router: Router
+    ,
+    private messageService: MessageService
   ) {
     this.form = this.fb.group({ rows: this.fb.array([]) });
   }

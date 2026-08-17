@@ -97,6 +97,7 @@
   }
 </style>
 <div class="container receipt-entry-page">
+  <p-toast position="top-right"></p-toast>
   <ng-container *ngIf="isLoading || isCopying">
     <div class="text-center mt-3">
       <div class="spinner-border" role="status">
@@ -107,11 +108,7 @@
   </ng-container>
 
   <ng-container *ngIf="isDataLoaded && !isLoading && !isCopying">
-    <ng-container *ngIf="savedMessage">
-      <div class="alert mt-2" [ngClass]="{ 'alert-success': !savedMessage.includes('failed'), 'alert-danger': savedMessage.includes('failed') }" role="alert">
-        {{ savedMessage }}
-      </div>
-    </ng-container>
+    <!-- savedMessage removed: using toast for save notifications -->
 
     <form (ngSubmit)="save()" [formGroup]="form" id="receiptEntryForm" class="receipt-entry-table-wrapper">
       <div class="table-wrapper">
