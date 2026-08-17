@@ -228,8 +228,28 @@
 
           <ng-template pTemplate="footer">
             <tr>
-              <td colspan="17" class="text-end"><strong>Total</strong></td>
-              <td class="num-cell"><strong>{{ totalAmount | number:'1.0-2' }}</strong></td>
+              <td pFrozenColumn><strong>Total</strong></td>
+              <td class="num-cell">{{ totalQty.prev.q !== undefined ? (totalQty.prev.q | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.prev.p !== undefined ? (totalQty.prev.p | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.prev.n !== undefined ? (totalQty.prev.n | number:'1.0-0') : '' }}</td>
+              <td class="num-cell group-separator-right">{{ totalQty.prev.d !== undefined ? (totalQty.prev.d | number:'1.0-0') : '' }}</td>
+
+              <td class="num-cell">{{ totalQty.receipt.q !== undefined ? (totalQty.receipt.q | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.receipt.p !== undefined ? (totalQty.receipt.p | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.receipt.n !== undefined ? (totalQty.receipt.n | number:'1.0-0') : '' }}</td>
+              <td class="num-cell group-separator-right">{{ totalQty.receipt.d !== undefined ? (totalQty.receipt.d | number:'1.0-0') : '' }}</td>
+
+              <td class="num-cell">{{ totalQty.curr.q !== undefined ? (totalQty.curr.q | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.curr.p !== undefined ? (totalQty.curr.p | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.curr.n !== undefined ? (totalQty.curr.n | number:'1.0-0') : '' }}</td>
+              <td class="num-cell group-separator-right">{{ totalQty.curr.d !== undefined ? (totalQty.curr.d | number:'1.0-0') : '' }}</td>
+
+              <td class="num-cell">{{ totalQty.sales.q !== undefined ? (totalQty.sales.q | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.sales.p !== undefined ? (totalQty.sales.p | number:'1.0-0') : '' }}</td>
+              <td class="num-cell">{{ totalQty.sales.n !== undefined ? (totalQty.sales.n | number:'1.0-0') : '' }}</td>
+              <td class="num-cell group-separator-right">{{ totalQty.sales.d !== undefined ? (totalQty.sales.d | number:'1.0-0') : '' }}</td>
+
+              <td class="num-cell amount-separator-left"><strong>{{ totalAmount | number:'1.0-2' }}</strong></td>
             </tr>
           </ng-template>
         </p-table>

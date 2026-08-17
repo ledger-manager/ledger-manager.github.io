@@ -41,6 +41,8 @@ export class DaySalesReportComponent implements OnInit, OnDestroy {
   rows: StockSalesRow[] = [];
   editRows: StockSalesRow[] = [];
   totalAmount: number = 0;
+  // Totals for each denomination and group
+  totalQty: { prev: any; receipt: any; curr: any; sales: any } = { prev: { q: 0, p: 0, n: 0, d: 0 }, receipt: { q: 0, p: 0, n: 0, d: 0 }, curr: { q: 0, p: 0, n: 0, d: 0 }, sales: { q: 0, p: 0, n: 0, d: 0 } };
   isDataLoaded = false;
   isLoading = false;
   isSaving = false;
@@ -355,6 +357,20 @@ export class DaySalesReportComponent implements OnInit, OnDestroy {
         });
 
         this.totalAmount = this.rows.reduce((sum, row) => sum + (Number.isFinite(row.amount as any) ? (row.amount || 0) : 0), 0);
+        // compute totals per column group (prev, receipt, curr, sales) for q,p,n,d
+        const makeInit = () => ({ q: 0, p: 0, n: 0, d: 0 });
+        const totals: any = { prev: makeInit(), receipt: makeInit(), curr: makeInit(), sales: makeInit() };
+        this.rows.forEach(r => {
+          (['prev', 'receipt', 'curr', 'sales'] as const).forEach(group => {
+            (['q', 'p', 'n', 'd'] as const).forEach(k => {
+              const v = (r as any)[group]?.[k];
+              if (v !== null && v !== undefined && Number.isFinite(Number(v))) {
+                totals[group][k] += Number(v);
+              }
+            });
+          });
+        });
+        this.totalQty = totals;
         this.isDataLoaded = true;
         this.hasChanges = false;
       },
