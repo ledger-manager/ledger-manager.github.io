@@ -177,13 +177,21 @@ export class StockEntryComponent implements OnInit, OnDestroy {
       }));
 
       const payload = { dateId: key, itemType: 'stock', values, saleAmt: 0, stockAmt: 0 };
-      this.stockService.saveStock(payload as any).pipe(take(1)).subscribe(ok => {
-        this.isSaving = false;
+      this.stockService.saveStock(payload as any).pipe(
+        take(1),
+        finalize(() => {
+          this.isSaving = false;
+          this.cdr.markForCheck();
+        })
+      ).subscribe(ok => {
         this.savedMessage = ok ? 'Stock saved successfully.' : 'Failed to save stock.';
         this.hasChanges = false;
+        if (this.msgTimer) clearTimeout(this.msgTimer);
+        this.msgTimer = setTimeout(() => { this.savedMessage = null; this.cdr.markForCheck(); }, 3000);
       }, () => {
-        this.isSaving = false;
         this.savedMessage = 'Failed to save stock.';
+        if (this.msgTimer) clearTimeout(this.msgTimer);
+        this.msgTimer = setTimeout(() => { this.savedMessage = null; this.cdr.markForCheck(); }, 3000);
       });
     }
 

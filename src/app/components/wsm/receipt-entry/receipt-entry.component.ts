@@ -172,13 +172,21 @@ export class ReceiptEntryComponent implements OnInit, OnDestroy {
         dqty: g.get('dqty')?.value ?? null
       }));
       const payload = { dateId: key, itemType: 'receipt', values, saleAmt: 0, stockAmt: 0 };
-      this.receiptService.saveReceipts(payload as any).pipe(take(1)).subscribe(ok => {
-        this.isSaving = false;
+      this.receiptService.saveReceipts(payload as any).pipe(
+        take(1),
+        finalize(() => {
+          this.isSaving = false;
+          this.cdr.markForCheck();
+        })
+      ).subscribe(ok => {
         this.savedMessage = ok ? 'Receipts saved successfully.' : 'Failed to save receipts.';
         this.hasChanges = false;
+        if (this.msgTimer) clearTimeout(this.msgTimer);
+        this.msgTimer = setTimeout(() => { this.savedMessage = null; this.cdr.markForCheck(); }, 3000);
       }, () => {
-        this.isSaving = false;
         this.savedMessage = 'Failed to save receipts.';
+        if (this.msgTimer) clearTimeout(this.msgTimer);
+        this.msgTimer = setTimeout(() => { this.savedMessage = null; this.cdr.markForCheck(); }, 3000);
       });
     }
 
