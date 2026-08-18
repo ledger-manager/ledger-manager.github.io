@@ -130,6 +130,31 @@
     margin-top: 0.12rem;
     margin-bottom: 0;
   }
+  .r1-report-dialog .p-dialog-content {
+    padding: 0.75rem;
+  }
+  .r1-report-table {
+    width: 100%;
+    min-width: 320px;
+    table-layout: fixed;
+    margin-bottom: 0;
+  }
+  .r1-report-table th,
+  .r1-report-table td {
+    padding: 0.45rem 0.5rem;
+    white-space: nowrap;
+    font-size: 0.8rem;
+  }
+  @media (max-width: 640px) {
+    .r1-report-dialog .p-dialog-content {
+      padding: 0.5rem;
+    }
+    .r1-report-table th,
+    .r1-report-table td {
+      padding: 0.35rem 0.35rem;
+      font-size: 0.72rem;
+    }
+  }
 </style>
 <div class="container day-sales-report-page">
 
@@ -158,9 +183,18 @@
     <ng-container *ngIf="!noDataAvailable">
       <div class="day-sales-table-wrapper">
           <div class="table-wrapper">
-            <p-dialog header="R 1 Report" [(visible)]="showR1Dialog" [modal]="true" [style]="{width: '540px'}" (onHide)="closeR1Dialog()">
-              <div class="table-responsive">
-                <table class="table table-sm day-sales-table" style="min-width:420px;">
+            <p-dialog
+              header="R 1 Report"
+              [(visible)]="showR1Dialog"
+              [modal]="true"
+              [draggable]="false"
+              [resizable]="false"
+              [breakpoints]="{ '640px': '95vw', '480px': '100vw' }"
+              [style]="{ width: 'min(540px, 92vw)' }"
+              styleClass="r1-report-dialog"
+              (onHide)="closeR1Dialog()">
+              <div class="table-responsive" style="overflow-x:auto;">
+                <table class="table table-sm day-sales-table r1-report-table">
                   <thead>
                     <tr>
                       <th>Type</th>
